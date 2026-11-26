@@ -1,0 +1,2172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>和声色彩实验室 · 通用版</title>
+<style>:root {
+  --paper:#f3f4ef; --surface:#fffefa; --ink:#182c29; --muted:#536760;
+  --line:#dbe3db; --teal:#176d5f; --wash:#e6f2ec; --amber:#aa571e;
+  --gold:#a57c15; --warm:#fff1df; --shadow:0 2px 4px #23392c08;
+  font-family:"Microsoft YaHei UI","Noto Sans CJK SC",system-ui,sans-serif;
+  font-size:16px; background:var(--paper); color:var(--ink);
+}
+* {box-sizing:border-box}
+body {margin:0}
+button,input,textarea,select {font:inherit}
+button,select {cursor:pointer}
+a {color:var(--teal);text-underline-offset:.19em}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible {
+  outline:3px solid #3c998c;outline-offset:2px;
+}
+button:disabled {cursor:default;opacity:.52}
+h1,h2,p {margin:0}
+h2 {font-size:1.075rem;letter-spacing:.015em;line-height:1.4}
+.wrap {width:min(1430px,calc(100% - 56px));margin-inline:auto}
+.topbar {background:#172e29;color:#f6f9ef;border-bottom:1px solid #294840}
+.topinner {height:57px;display:flex;justify-content:space-between;align-items:center;gap:18px}
+.brand {display:flex;align-items:center;gap:9px;font-weight:750;color:inherit;text-decoration:none;white-space:nowrap}
+.mark {display:grid;place-items:center;width:29px;height:29px;font-size:1.35rem;line-height:1;color:#172e29;background:#b8dbc8;border-radius:6px}
+nav {display:flex;gap:25px;align-items:center}
+nav a {color:#e6f0e4;font-size:.875rem;text-decoration:none;white-space:nowrap}
+nav a:hover {text-decoration:underline}
+.hero {padding:29px 0 24px;display:flex;justify-content:space-between;align-items:end;gap:18px}
+.hero h1 {font-family:"SimSun","Noto Serif CJK SC",serif;font-weight:750;font-size:clamp(2.02rem,4vw,3rem);letter-spacing:.035em}
+.hero p {margin-top:9px;color:var(--muted);line-height:1.55}
+.offline {display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:.825rem;color:var(--muted);padding:0 5px 4px}
+.offline span {border:2px solid var(--teal);border-radius:50%;width:9px;height:9px}
+.workspace {display:grid;grid-template-columns:minmax(290px,325px) minmax(0,1fr);gap:18px;align-items:start}
+.tools,.views {display:grid;gap:16px;min-width:0}
+.panel {background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow);min-width:0}
+.panel[id] {scroll-margin-top:14px}
+.sectionhead {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.sectionhead p {margin-top:3px}
+label {display:block;font-size:.875rem;font-weight:650;margin:11px 0 5px}
+input:not([type=checkbox]):not([type=file]),select,textarea {width:100%;border:1px solid #cbd9d0;background:#fffefa;color:var(--ink);border-radius:7px;padding:8px 9px}
+input[type=number] {min-width:0}
+select {appearance:none;padding-right:30px;min-width:0;background-image:linear-gradient(45deg,transparent 50%,#38584d 50%),linear-gradient(135deg,#38584d 50%,transparent 50%)!important;background-position:calc(100% - 15px) 53%,calc(100% - 10px) 53%!important;background-size:5px 5px,5px 5px!important;background-repeat:no-repeat!important}
+textarea {resize:vertical;min-height:130px;font-family:"Cascadia Code","Consolas","Microsoft YaHei UI",monospace;font-size:.875rem;line-height:1.68}
+code,.mono {font-family:"Cascadia Code","Consolas",monospace}
+.secondary,.primary,.quiet {border:1px solid transparent;border-radius:7px;min-height:36px;padding:6px 11px;white-space:nowrap;font-weight:650;font-size:.875rem}
+.secondary {color:#205247;background:#fffefa;border-color:#cddbce}
+.secondary:hover:not(:disabled) {background:#edf6ef}
+.primary {background:#216d5e;color:white;border-color:#216d5e}
+.primary:hover:not(:disabled) {background:#14584d}
+.quiet {color:var(--teal);background:transparent;border:0;padding:4px 5px;min-height:30px}
+.quiet:hover {text-decoration:underline}
+.wide {width:100%}
+.presetrow {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+.muted,.preset-note,.syntax,.status,.optional,.chart-caption,.footer {color:var(--muted)}
+.muted,.preset-note,.chart-caption,.disclosure p,.footer {font-size:.875rem;line-height:1.55}
+.preset-note {margin-top:6px}
+.syntax {font-size:.8rem;margin-top:5px;line-height:1.5}
+.edit-actions {display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.status {font-size:.825rem;line-height:1.5;display:block;min-height:1em;margin-top:7px;overflow-wrap:anywhere}
+.status.bad {color:#9b3024}
+.optional {font-size:.78rem;font-weight:400}
+.disclosure {margin-top:11px;padding-top:9px;border-top:1px solid #e4ebe2}
+summary {cursor:pointer;font-weight:650;font-size:.875rem}
+.disclosure p {margin-top:7px}
+.keycontrols {display:flex;align-items:center;gap:8px;margin-top:7px}
+.keycontrols label {margin:0}
+.keycontrols select {width:64px;padding-block:5px}
+.keyboard {position:relative;height:91px;margin:8px 0 4px;isolation:isolate}
+.key {position:absolute;padding:0;border:1px solid #becbc2;background:#fffefa;color:#344e42;bottom:0;height:91px;font-size:.65rem;font-weight:650;padding-bottom:5px;display:flex;align-items:end;justify-content:center;border-radius:0 0 4px 4px}
+.key.black {height:54px;bottom:auto;top:0;background:#203c36;border-color:#203c36;color:#fff;z-index:1}
+.key[aria-pressed=true] {background:#85baa5;color:#153831}
+.key.black[aria-pressed=true] {background:#266f5e;color:white}
+.picked {min-height:21px}
+.two-inputs {display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.scale {display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.chip {border-radius:5px;padding:4px 7px;font-weight:650;font-size:.8rem;color:#335547;background:#eef4ed}
+.chip.tonic {background:#235f50;color:white}
+
+[hidden] {display:none!important}
+.hero h1 span {font-family:"Microsoft YaHei UI",sans-serif;font-size:.87rem;color:#315448;letter-spacing:.05em;font-weight:650;white-space:nowrap;vertical-align:.25em;margin-left:7px}
+.sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.library-head {display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.library-head label {margin-top:0}
+
+input#preset-query {margin:6px 0}
+.preset-filters {display:grid;grid-template-columns:minmax(0,1.14fr) minmax(0,.86fr);gap:6px;margin-top:6px}
+.preset-filters select {font-size:.82rem;padding-left:7px;padding-right:20px}
+.preset-tags {display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.preset-tags span {font-size:.77rem;padding:3px 6px;background:#e9f0e8;color:#345448;border-radius:4px}
+#play-section {min-height:31px;padding:4px 7px;font-size:.79rem}
+.sequence,.curve-scroll {overflow-anchor:none}
+
+.arranger-panel .sectionhead {margin:0}
+.build-arr {margin-top:12px}
+.arr-entry {margin-top:10px}
+#arr-melody {min-height:60px}
+.arr-preview {margin:8px 0 0;padding:0;list-style:none;max-height:228px;overflow:auto;border:1px solid var(--line);border-radius:7px}
+.arr-preview li {display:flex;flex-direction:column;gap:0;padding:2px 8px 5px;border-bottom:1px solid var(--line);font-size:.82rem;overflow-wrap:anywhere}
+.arr-preview li:last-child {border-bottom:0}
+.arr-preview .quiet {text-align:left;padding-inline:0;white-space:normal}
+.arr-preview span {color:var(--muted)}
+#phrase-jump {width:auto;max-width:128px;font-size:.825rem;padding-block:5px}
+.from-here {font-size:.8rem}
+
+.timeline-panel {padding-bottom:13px}
+.transport {display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tempo {display:flex;gap:4px;align-items:center;margin:0;color:var(--muted);padding-right:5px}
+input#tempo {width:58px;padding:6px 3px 6px 6px}
+.sequence {display:flex;gap:7px;overflow-x:auto;min-width:0;min-height:81px;padding:2px 3px 8px;scrollbar-color:#b8cbbf transparent}
+.event {text-align:left;flex:0 0 min(155px,59%);min-width:111px;padding:8px 10px;border-radius:8px;border:1px solid #d9e2d9;background:#f7f9f4;color:var(--ink);line-height:1.34}
+.event:last-child {margin-right:2px}
+.event:hover {border-color:#7a9d90}
+.event[aria-pressed=true] {border-color:#2a826d;background:#e7f3ec;box-shadow:inset 0 3px #378a74}
+.event.audition {box-shadow:inset 0 3px #b86d31}
+.event .index {font-size:.74rem;font-weight:650;color:var(--muted)}
+.event strong,.event .notes {display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.event strong {margin-top:2px;font-size:.89rem}
+.event .notes {font-size:.77rem;color:#466356;margin-top:3px}
+.compare-line {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px}
+.compare-line label {margin:0}
+#compare {width:auto;max-width:210px;font-size:.825rem;padding-block:5px}
+.legend {margin-left:auto;display:flex;gap:8px;align-items:center;color:var(--muted);font-size:.78rem}
+.swatch {width:9px;height:9px;border-radius:50%;display:inline-block}
+.swatch.current {background:var(--teal)}
+.swatch.prior {background:var(--amber)}
+.swatch.common {background:var(--gold)}
+.metrics {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.metric {border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:#ebf2e9;min-width:0}
+.metric h3 {font-size:.78rem;line-height:1.35;color:var(--muted);margin:0;font-weight:650}
+.metric strong {display:block;font-size:1.21rem;font-variant-numeric:tabular-nums;margin-top:3px;white-space:nowrap}
+.metric span {display:block;color:var(--muted);font-size:.75rem;margin-top:2px;line-height:1.38;overflow-wrap:anywhere}
+.chart-grid {display:grid;grid-template-columns:minmax(0,.83fr) minmax(0,1.17fr);gap:14px}
+.chartpanel .sectionhead {margin-bottom:4px}
+canvas {display:block;width:100%}
+.pc-chart,.net-chart {height:250px;cursor:crosshair}
+.chart-caption {min-height:45px;padding-top:7px;overflow-wrap:anywhere}
+.chart-caption span {display:block}
+.curve-scroll {overflow-x:auto;padding-bottom:1px}
+#curve {height:174px;cursor:crosshair}
+.formula {margin-top:6px;padding:8px 10px;background:#edf5ec;border:1px solid #dce9dd;border-radius:7px;font-size:.875rem;line-height:1.65;overflow-wrap:anywhere}
+.formula strong {color:#205c4e}
+.formula .special {color:#8c4218}
+.check {display:flex;gap:5px;align-items:center;white-space:nowrap;margin:0;font-weight:500}
+.check input {width:16px;height:16px;accent-color:var(--teal)}
+.table-wrap {overflow:auto;margin-top:8px;max-height:385px}
+table {border-collapse:collapse;width:100%;min-width:710px;font-size:.825rem;line-height:1.45}
+th,td {padding:6px 8px;text-align:left;border-bottom:1px solid #e0e8df}
+th {white-space:nowrap;background:#edf4eb;position:sticky;top:0}
+td:first-child {white-space:nowrap}
+td:last-child {min-width:70px}
+tbody tr[data-current] {background:#eaf3ec}
+.table-pick {font-size:inherit;text-align:left;white-space:normal}
+.guide .sources {margin-top:12px;color:var(--muted);font-size:.825rem;line-height:1.55}
+.footer {padding:15px 0 30px}
+@media(max-width:1050px) {
+  .wrap {width:calc(100% - 36px)}
+  .workspace {grid-template-columns:minmax(260px,285px) minmax(0,1fr);gap:12px}
+  .panel {padding-inline:13px}
+  .pc-chart,.net-chart {height:220px}
+}
+@media(max-width:820px) {
+  .workspace {display:flex;flex-direction:column}
+  .tools,.views {width:100%}
+  .tools {grid-template-columns:1fr 1fr;align-items:start}
+  .hero {align-items:start}
+  .hero p {font-size:.9rem}
+}
+@media(max-width:570px) {
+  .wrap {width:calc(100% - 24px)}
+  nav {gap:12px}
+  nav a {font-size:.78rem}
+  .brand {gap:6px;font-size:.88rem}
+  .mark {width:23px;height:23px;font-size:1.08rem}
+  .hero {padding:19px 0 17px;display:block}
+  .offline {margin-top:7px;padding:0}
+  .tools,.chart-grid {grid-template-columns:1fr}
+  .timeline-head {align-items:start;flex-direction:column}
+  .metrics {grid-template-columns:1fr 1fr}
+  .legend {margin-left:0}
+  .sectionhead:has(.check) {align-items:start}
+  .check {padding-top:4px;font-size:.78rem}
+  .pc-chart,.net-chart {height:246px}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topinner">
+    <a class="brand" href="#top" aria-label="和声实验室首页"><span class="mark" aria-hidden="true">△</span> 和声实验室</a>
+    <nav aria-label="页面导航"><a href="#editor">输入</a><a href="#arranger">和声配写</a><a href="#guide">读图说明</a></nav>
+  </div>
+</header>
+<main class="wrap" id="top">
+  <div class="hero">
+    <div>
+      <h1>和声色彩实验室 <span>通用版</span></h1>
+      <p>从各风格预设或自定义音组出发，用试听、音集图、三角网和色差分析一整段和声。</p>
+    </div>
+    <span class="offline"><span></span> 单文件 · 离线使用</span>
+  </div>
+
+  <div class="workspace">
+    <aside class="tools">
+      <section class="panel editor-panel" id="editor" aria-labelledby="editheading">
+        <div class="sectionhead"><h2 id="editheading">和声输入</h2><button class="quiet" id="demo-format" type="button">输入格式</button></div>
+        <div class="library-head"><label for="preset-group">预设库</label><span id="preset-count" class="optional" aria-live="polite"></span></div>
+        <select id="preset-group"><option value="">全部风格</option></select>
+        <div class="preset-filters">
+          <select id="preset-technique" aria-label="筛选和声构造"><option value="">全部构造</option><option value="advanced">全部进阶预设</option></select>
+          <select id="preset-length" aria-label="筛选最短长度"><option value="0">全部长度</option><option value="32">至少 32 组</option><option value="48">至少 48 组</option><option value="64">至少 64 组</option></select>
+        </div>
+        <input type="search" id="preset-query" aria-label="搜索预设" placeholder="搜主题，例如 变化属、四度、旋宫">
+        <label class="sr-only" for="preset">选择预设</label>
+        <div class="presetrow"><select id="preset"></select><button class="secondary" id="load-preset" type="button">载入</button></div>
+        <p class="preset-note" id="preset-note"></p>
+        <div class="preset-tags" id="preset-tags" aria-label="构造标签" hidden></div>
+        <label for="editor-text">每行一个音组</label>
+        <textarea id="editor-text" rows="7" spellcheck="false" autocapitalize="off" aria-describedby="syntax-inline"></textarea>
+        <div class="syntax" id="syntax-inline">例如 <code>叠置：C3 F3 Bb3 @ 2</code></div>
+        <div class="edit-actions">
+          <button class="primary" id="analyze" type="button">分析进行</button>
+          <button class="secondary" id="append-current" type="button">复制当前组</button>
+        </div>
+        <output class="status" id="status" role="status"></output>
+        <label for="reference">参照音组 <span class="optional">选填</span></label>
+        <input id="reference" type="text" spellcheck="false" placeholder="如 C E G。空白时只算相邻色差">
+        <details class="disclosure" id="keyboard-section">
+          <summary>键盘取音</summary>
+          <div class="keycontrols"><label for="octave">起始八度</label><select id="octave"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select><button class="quiet" id="clear-keys" type="button">清除</button></div>
+          <div class="keyboard" id="keyboard" aria-label="屏幕钢琴"></div>
+          <p id="picked" class="picked">点击琴键取音。</p>
+          <div class="edit-actions"><button class="secondary" type="button" id="key-add">追加音组</button><button class="secondary" type="button" id="key-replace">替换当前组</button></div>
+        </details>
+        <details class="disclosure">
+          <summary>导入和导出</summary>
+          <div class="edit-actions">
+            <button class="secondary" type="button" id="import">导入文本</button>
+            <button class="secondary" type="button" id="save-text">保存进行</button>
+            <button class="secondary" type="button" id="save-csv">导出数据</button>
+          </div>
+          <input id="input-file" type="file" accept=".txt,.json,text/plain,application/json" hidden>
+        </details>
+      </section>
+
+      <section class="panel arranger-panel" id="arranger" aria-labelledby="arranger-heading">
+        <div class="sectionhead"><h2 id="arranger-heading">和声配写</h2></div>
+        <label for="arr-style">配写语法</label>
+        <select id="arr-style"></select>
+        <p id="arr-intro" class="preset-note"></p>
+        <div class="two-inputs">
+          <div><label for="arr-tonic" id="arr-tonic-label">中心音</label><select id="arr-tonic"></select></div>
+          <div><label for="arr-length">音组数量</label><select id="arr-length"><option>8</option><option selected>12</option><option>16</option><option>24</option><option>32</option></select></div>
+        </div>
+        <div id="arr-pent" hidden>
+          <div class="two-inputs">
+            <div><label for="arr-mode">中心阶名</label><select id="arr-mode"><option value="0">宫</option><option value="1">商</option><option value="2">角</option><option value="3">徵</option><option value="4">羽</option></select></div>
+            <div><label for="arr-recipe">五声写法</label><select id="arr-recipe"></select></div>
+          </div>
+          <div class="scale" id="arr-scale"></div>
+          <p id="arr-recipe-note" class="preset-note"></p>
+        </div>
+        <div class="two-inputs">
+          <div><label for="arr-ending">末句安排</label><select id="arr-ending"><option value="close">收束</option><option value="open">开放</option><option value="loop">接回开头</option></select></div>
+          <div><label for="arr-pulse">每组基础拍数</label><select id="arr-pulse"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+        </div>
+        <details class="disclosure">
+          <summary>给旋律配和声 <span class="optional">选填</span></summary>
+          <label for="arr-melody">指定每组的最高音</label>
+          <textarea id="arr-melody" rows="2" spellcheck="false" autocapitalize="off" placeholder="E4 G4 A4 - | F4 D4 B4 C5" aria-describedby="arr-melody-note"></textarea>
+          <p class="preset-note" id="arr-melody-note">每个位置填一个音，短横线表示由程序选。支持 C2–C7。较低的旋律可能改变叠置间距。</p>
+        </details>
+        <label class="check arr-entry"><input type="checkbox" id="arr-entry">参考当前进行的末组</label>
+        <button class="secondary wide build-arr" id="arr-generate" type="button">生成配写方案</button>
+        <output id="arr-status" class="status" role="status"></output>
+        <div id="arr-variants" hidden>
+          <label for="arr-choice">试听方案</label><select id="arr-choice"></select>
+          <p class="preset-note" id="arr-analysis"></p>
+          <ol id="arr-preview" class="arr-preview"></ol>
+          <div class="edit-actions">
+            <button class="secondary" id="arr-listen" type="button">试听方案</button>
+            <button class="secondary" id="arr-stop" type="button" disabled>停止</button>
+          </div>
+          <div class="edit-actions">
+            <button class="primary" id="arr-replace" type="button">替换进行</button>
+            <button class="secondary" id="arr-append" type="button">追加</button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <div class="views">
+      <section class="panel timeline-panel" aria-labelledby="seq-heading">
+        <div class="sectionhead timeline-head">
+          <div><h2 id="seq-heading">进行与试听</h2><p id="sequence-description" class="muted"></p></div>
+          <div class="transport">
+            <label class="tempo" for="tempo"><input id="tempo" type="number" min="30" max="260" value="84" step="1" inputmode="numeric"> BPM</label>
+            <button class="secondary" id="play-pair" type="button">听对照</button>
+            <button class="primary" id="play" type="button">▶ 播放</button>
+            <button class="secondary" id="stop" type="button" disabled>停止</button>
+          </div>
+        </div>
+        <div id="sequence" class="sequence" aria-label="选择要观察的音组"></div>
+        <div class="compare-line">
+          <label for="compare">对照音组</label><select id="compare"></select>
+          <label class="sr-only" for="phrase-jump">跳至乐句</label><select id="phrase-jump" hidden></select>
+          <label class="check from-here"><input type="checkbox" id="from-here">从当前组播</label>
+          <button class="secondary" id="play-section" type="button" hidden>只听本段</button>
+          <span class="legend"><span class="swatch current"></span> 当前 <span class="swatch prior"></span> 对照 <span class="swatch common"></span> 共有</span>
+        </div>
+      </section>
+
+      <div class="metrics" id="metrics" aria-label="当前对照数据"></div>
+
+      <div class="chart-grid">
+        <section class="panel chartpanel" aria-labelledby="pc-heading">
+          <div class="sectionhead"><div><h2 id="pc-heading">音集图</h2><p class="muted">十二半音顺时针排列</p></div></div>
+          <canvas id="pc-plot" class="pc-chart" aria-label="十二音级音集叠图" role="img"></canvas>
+          <div class="chart-caption" id="set-summary"></div>
+        </section>
+        <section class="panel chartpanel" aria-labelledby="net-heading">
+          <div class="sectionhead"><div><h2 id="net-heading">三角网</h2><p class="muted">横向纯五度 · 右上大三度</p></div><button id="fit-net" class="quiet" type="button" title="恢复完整视图">适配</button></div>
+          <canvas id="net-plot" class="net-chart" aria-label="按音名拼写绘制的三角网" role="img"></canvas>
+          <div class="chart-caption" id="net-summary"></div>
+        </section>
+      </div>
+
+      <section class="panel" aria-labelledby="color-heading">
+        <div class="sectionhead"><div><h2 id="color-heading">色差轨迹</h2><p class="muted">柱条表示从前一音组到当前音组的色差。点击柱条可切换音组。</p></div>
+        <label class="check"><input type="checkbox" id="raw-view">显示直算差</label></div>
+        <div class="curve-scroll" id="curve-scroll"><canvas id="curve" aria-label="逐步色差图" role="img"></canvas></div>
+        <div id="formula" class="formula"></div>
+        <details class="disclosure" open><summary>逐组复算表</summary><div class="table-wrap" id="table"></div></details>
+      </section>
+
+      <section class="panel guide" id="guide" aria-labelledby="guide-heading">
+        <h2 id="guide-heading">读图与计算</h2>
+        <details class="disclosure" id="format-detail">
+          <summary>输入格式</summary>
+          <p>每行或每个竖线分隔一个音组。用空格、逗号或顿号隔开音名，可加可见的标签与冒号。音名可写 <code>Db4</code>、<code>F♯3</code>、<code>Bbb4</code>。不写八度时取第 4 八度，<code>C4</code> 为中央 C。末尾 <code>@ 2</code> 表示两拍，省略时为两拍。用 <code>休止 @ 1</code> 保留一拍空白。</p>
+          <p>常用和弦可简写为 <code>=Cmaj7</code>、<code>=Dm9</code>、<code>=G7/B</code>，并由程序提供初始排列。四度、五度、音簇和特定配音可直接输入每一个音。甲组和乙组若只改变八度，色差可以相同，试听与声部距离会变。</p>
+        </details>
+        <details class="disclosure">
+          <summary>音集与三角网怎么读</summary>
+          <p>音集图将八度和等音合并。音集原型将移位与倒影归到同一类。音程向量的六格依次统计 1 到 6 个半音的无向音程数。T<sub>n</sub> 是移位 n 个半音，I<sub>n</sub> 是把音级 x 映到 n−x（模 12）。</p>
+          <p>三角网的横向一步是一格纯五度，右上为大三度，左上为下行小三度。朝上的小三角是大三和弦，朝下的是小三和弦。其他音组按其节点与邻边显示。重复位置与等音拼法应结合音集图看；点击图中实心音名或音点可以试听。</p>
+        </details>
+        <details class="disclosure">
+          <summary>色差、等音与声部距离</summary>
+          <p>按华萃康《色彩和声》第 19–21 页，C 的五度序数为 0，向 G 方向增加，向 F 方向减少。每个不同拼写的音计一次，八度重复不加权。平均 A 取音组所有序数的平均，相邻色差 Δ 是后组减前组，按 12 折回 −6 到 +6。原拼写的跨度、直算差和折回值并列保留。给出参照时另算相对色彩度 R。共键异名可能改变每个音组平均值。</p>
+          <p>第 519 页的共有等音三全音修正另行提示，保留原值。无中心的段落可以比较相邻 Δ。无音高事件没有色差，休止会断开相邻比较。声部距离用实际八度，以配对半音总数最小为准。它允许多出的音进入或离开，不替代逐声部的原谱分析。</p>
+        </details>
+        <details class="disclosure">
+          <summary>预设和配写怎么用</summary>
+          <p>预设以 A、B、C 等标记乐句或材料段，使用「跳至乐句」定位，可通过「只听本段」反复比较，也可勾选「从当前组播」继续听后面的段落。可按构造与长度筛选进阶预设。进阶条目是围绕具体手法写的教学段落；输入框中的注释标出每段的材料。带作曲家或作品名称的基础预设是教学归纳和自拟扩展。</p>
+          <p>和声配写以各语法的乐句和构型为候选，同时衡量旋律音是否属于基础构型、声部移动、共同音与五度色差。选「收束」「开放」或「接回开头」可改变末句。试听后再替换或追加；色差反映五度序数，收句效果还要结合节拍、旋律与低音听。</p>
+        </details>
+        <p class="sources">资料依据　<a href="https://wangshubianqu.com/chord-map/" rel="noopener" target="_blank">汪叔和弦地图</a>　<a href="https://animerqi.github.io/harmony-reader/" rel="noopener" target="_blank">叶小胖《图解和声》</a>　华萃康《色彩和声》第 1、6、8、9、11 章　<a href="https://viva.pressbooks.pub/openmusictheory/" rel="noopener" target="_blank">Open Music Theory</a>（<a href="https://viva.pressbooks.pub/openmusictheory/chapter/intro-to-harmony/" rel="noopener" target="_blank">乐句</a>、<a href="https://viva.pressbooks.pub/openmusictheory/chapter/ii-v-i/" rel="noopener" target="_blank">ii–V–I</a>、<a href="https://viva.pressbooks.pub/openmusictheory/chapter/blues-harmony/" rel="noopener" target="_blank">蓝调</a>、<a href="https://viva.pressbooks.pub/openmusictheory/chapter/jazz-voicings/" rel="noopener" target="_blank">爵士配音</a>、<a href="https://viva.pressbooks.pub/openmusictheory/chapter/altered-and-extended-dominant-chords/" rel="noopener" target="_blank">扩展和弦</a>、<a href="https://viva.pressbooks.pub/openmusictheory/chapter/row-properties/" rel="noopener" target="_blank">六音互补</a>）</p>
+      </section>
+    </div>
+  </div>
+</main>
+<footer class="wrap footer">十二平均律分析 · 浏览器合成试听</footer>
+<script>'use strict';
+
+const letters = 'CDEFGAB';
+const naturals = [0,2,4,5,7,9,11];
+const fifths = [0,2,4,-1,1,3,5];
+const pcNames = ['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];
+const sharpNames = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const gongNames = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+const modes = ['宫','商','角','徵','羽'];
+const mod = (n,m=12) => ((n%m)+m)%m;
+const asc = (a,b) => a-b;
+const unique = xs => [...new Set(xs)];
+const intersection = (a,b) => a.filter(x=>b.includes(x));
+const sameSet = (a,b) => a.length === b.length && a.every(x=>b.includes(x));
+const unicode = s => s.replaceAll('#','♯').replaceAll('b','♭');
+const ascii = s => s.replaceAll('♯','#').replaceAll('♭','b').replaceAll('𝄪','##').replaceAll('𝄫','bb').replaceAll('♮','');
+const difference = (a,b) => frac(a.n*b.d - b.n*a.d, a.d*b.d);
+const value = f => f ? f.n/f.d : null;
+
+function frac(n,d=1) {
+  let a=Math.abs(n), b=d;
+  while(b) [a,b]=[b,a%b];
+  return {n:n/a,d:d/a};
+}
+function folded(f) {
+  if (!f) return null;
+  let num=f.n;
+  if (Math.abs(num)>6*f.d) {
+    const positive=Math.abs(num)%(12*f.d);
+    num = Math.sign(num)*(positive>6*f.d ? positive-12*f.d : positive);
+  }
+  return frac(num,f.d);
+}
+function fstr(f,signed=false) {
+  if (!f) return '—';
+  const sign=f.n<0?'−':(signed&&f.n>0?'+':'');
+  return sign+Math.abs(f.n)+(f.d===1?'':'/'+f.d);
+}
+function parseNote(word) {
+  const token=ascii(word.trim()).replace(/[x×]/g,'##');
+  const m=/^([a-gA-G])([#]*|b*)(-?[0-9]+)?$/.exec(token);
+  if(!m) throw Error('无法识别音名「'+word+'」');
+  const letter=m[1].toUpperCase(), pos=letters.indexOf(letter), accidental=m[2];
+  if(accidental.length>6) throw Error('音名「'+word+'」的升降号太多');
+  const alter=accidental.startsWith('b')?-accidental.length:accidental.length;
+  const octave=m[3]===undefined?4:Number(m[3]);
+  const midi=(octave+1)*12+naturals[pos]+alter;
+  if(!Number.isInteger(midi)||midi<0||midi>127) throw Error('音名「'+word+'」超出 MIDI 0–127 音域');
+  return {token:letter+accidental+(m[3]??''), name:letter+accidental, octave, midi, pc:mod(midi),
+    k:fifths[pos]+7*alter, letter:pos};
+}
+function spell(midi,letter) {
+  const oct=Math.round((midi-naturals[letter])/12)-1;
+  const accidental=midi-((oct+1)*12+naturals[letter]);
+  return letters[letter]+(accidental<0?'b'.repeat(-accidental):'#'.repeat(accidental))+oct;
+}
+function nameAtFifth(k) {
+  const shift=Math.floor((k+1)/7);
+  return 'CGDAEBF'[mod(k,7)]+(shift<0?'b'.repeat(-shift):'#'.repeat(shift));
+}
+
+const chords = new Map(Object.entries({
+  '':[0,4,7], m:[0,3,7], dim:[0,3,6], aug:[0,4,8], '5':[0,7],
+  sus2:[0,2,7], sus:[0,5,7], sus4:[0,5,7], '7sus4':[0,5,7,10],
+  '6':[0,4,7,9], m6:[0,3,7,9], '6/9':[0,4,7,9,14],
+  '7':[0,4,7,10], maj7:[0,4,7,11], m7:[0,3,7,10],
+  mMaj7:[0,3,7,11], 'm(maj7)':[0,3,7,11], 'm7b5':[0,3,6,10], dim7:[0,3,6,9],
+  add9:[0,4,7,14], madd9:[0,3,7,14], '9':[0,4,7,10,14], maj9:[0,4,7,11,14], m9:[0,3,7,10,14],
+  '11':[0,4,7,10,14,17], maj11:[0,4,7,11,14,17], m11:[0,3,7,10,14,17],
+  '13':[0,4,7,10,14,21], maj13:[0,4,7,11,14,21], m13:[0,3,7,10,14,17,21],
+  '7b9':[0,4,7,10,13], '7#9':[0,4,7,10,15], '7b5':[0,4,6,10], '7#5':[0,4,8,10],
+  '7#11':[0,4,7,10,18], '7b13':[0,4,7,10,20], 'maj7#11':[0,4,7,11,18],
+  'maj9#11':[0,4,7,11,14,18],
+}));
+const chordDegrees = new Map([[0,0],[2,1],[3,2],[4,2],[5,3],[6,4],[7,4],[8,4],[9,5],[10,6],[11,6],
+  [13,8],[14,8],[15,8],[17,10],[18,10],[20,12],[21,12]]);
+
+function expandChord(source) {
+  const symbol=ascii(source.trim());
+  const parts=/^([A-Ga-g](?:#+|b+)?)(.*?)(?:\/([A-Ga-g](?:#+|b+)?))?$/.exec(symbol);
+  if(!parts) throw Error('无法识别和弦符号「'+source+'」');
+  const root=parseNote(parts[1]+'3');
+  let quality=parts[2].trim()
+    .replace(/^min/,'m').replace(/^M(?=\d)/,'maj').replace(/^Δ/,'maj').replace(/^ø7?$/,'m7b5')
+    .replace(/^[°o](7?)$/,'dim$1').replace(/^\+/,'aug');
+  if(/^[a-z]*\d+\(.+\)$/.test(quality)) quality=quality.replace(/[(),\s]/g,'');
+  const semitones=chords.get(quality);
+  if(!semitones) throw Error('简写「'+source+'」暂未收录，请直接填写各音');
+  const notes=semitones.map(semi=>{
+    const degree=quality==='dim7'&&semi===9?6:chordDegrees.get(semi);
+    const letter=quality==='7#11'&&semi===18?mod(root.letter+10,7):mod(root.letter+degree,7);
+    return parseNote(spell(root.midi+semi,letter));
+  });
+  if(parts[3]) {
+    const bass=parseNote(parts[3]+'2');
+    while(bass.midi>=root.midi) {
+      bass.midi-=12; bass.octave--;
+    }
+    bass.token=bass.name+bass.octave;
+    notes.unshift(bass);
+  }
+  return notes;
+}
+
+function makeEvent(name,notes,beats,line,source) {
+  const keys=unique(notes.map(n=>n.k)).sort(asc);
+  const pcs=unique(notes.map(n=>n.pc)).sort(asc);
+  const midi=unique(notes.map(n=>n.midi)).sort(asc);
+  return {name,notes,beats,line,source,keys,pcs,midi,
+    avg:keys.length?frac(keys.reduce((sum,k)=>sum+k,0),keys.length):null,
+    span:keys.length?keys.at(-1)-keys[0]:null};
+}
+function parseProgression(text) {
+  const events=[];
+  text.replaceAll('\r','').split(/[\n|｜；;]/).forEach((original,index)=>{
+    let body=original.trim(), name='';
+    if(!body||body.startsWith('//')) return;
+    try {
+      const tail=body.split(/[@＠]/);
+      if(tail.length>2) throw Error('每个音组只能有一个 @ 时值');
+      body=tail[0].trim();
+      const beats=tail.length===2?Number(tail[1].trim()):2;
+      if(!Number.isFinite(beats)||beats<.125||beats>64) throw Error('拍数须在 0.125 到 64 之间');
+      const colon=body.search(/[:：]/);
+      if(colon>=0) {
+        name=body.slice(0,colon).trim();
+        body=body.slice(colon+1).trim();
+      }
+      if(!body) throw Error('这里还没有音');
+      let notes=[];
+      if(body.startsWith('=')) {
+        notes=expandChord(body.slice(1));
+        name=name||body.slice(1);
+      } else if(!/^(?:休止|rest|—|-)$/i.test(body)) {
+        notes=body.split(/[\s,，、]+/).filter(Boolean).map(parseNote);
+      }
+      if(!notes.length&&!/^(?:休止|rest|—|-)$/i.test(body)) throw Error('这里还没有音');
+      events.push(makeEvent(name||(notes.length?'音组 '+(events.length+1):'休止'),notes,beats,index,original.trim()));
+    } catch(error) {
+      throw Error('第 '+(index+1)+' 段：'+error.message);
+    }
+  });
+  if(!events.length) throw Error('请先输入至少一个音组');
+  return events;
+}
+
+function lex(a,b) {
+  for(let i=0;i<a.length;i++) if(a[i]!==b[i]) return a[i]-b[i];
+  return 0;
+}
+function normalOrder(pcs) {
+  if(!pcs.length) return [];
+  const rotated=pcs.map((_,i)=>pcs.slice(i).concat(pcs.slice(0,i).map(x=>x+12)));
+  return rotated.map(group=>group.map(x=>x-group[0])).sort((a,b)=>lex([...a].reverse(),[...b].reverse()))[0];
+}
+function primeForm(pcs) {
+  const p=normalOrder(pcs);
+  const inv=normalOrder(pcs.map(x=>mod(-x)).sort(asc));
+  return lex([...p].reverse(),[...inv].reverse())<=0?p:inv;
+}
+function intervalVector(pcs) {
+  const counts=Array(6).fill(0);
+  for(let i=0;i<pcs.length;i++) for(let j=i+1;j<pcs.length;j++) {
+    const d=pcs[j]-pcs[i];
+    counts[Math.min(d,12-d)-1]++;
+  }
+  return counts;
+}
+function transformations(a,b) {
+  if(!a.length||a.length!==b.length) return [];
+  const modes=[];
+  for(let n=0;n<12;n++) {
+    if(sameSet(a.map(x=>mod(x+n)),b)) modes.push('T'+n);
+    if(sameSet(a.map(x=>mod(n-x)),b)) modes.push('I'+n);
+  }
+  return modes;
+}
+function matchesChord(pcs,shape) {
+  if(pcs.length!==shape.length) return -1;
+  return pcs.find(root=>sameSet(pcs,shape.map(semi=>mod(root+semi))))??-1;
+}
+function plr(a,b) {
+  let major=matchesChord(a,[0,4,7]), minor=matchesChord(b,[0,3,7]);
+  if(major===-1) {
+    major=matchesChord(b,[0,4,7]); minor=matchesChord(a,[0,3,7]);
+  }
+  if(major===-1||minor===-1) return '';
+  return ({0:'P 同主音',9:'R 关系大小调',4:'L 导音交换'})[mod(minor-major)]||'';
+}
+function bookCorrection(previous,current) {
+  if(!previous?.avg||!current?.avg) return '';
+  const shared=intersection(previous.pcs,current.pcs);
+  const sharedTritone=shared.some(x=>shared.includes(mod(x+6)));
+  if(!sharedTritone) return '';
+  const p=previous.pcs,c=current.pcs;
+  const dp=matchesChord(p,[0,4,7,10]), dc=matchesChord(c,[0,4,7,10]);
+  const hp=matchesChord(p,[0,3,6,10]), hc=matchesChord(c,[0,3,6,10]);
+  if((dp>=0&&dc>=0&&mod(dc-dp)===6)||(hp>=0&&hc>=0&&mod(hc-hp)===6)) return '3';
+  if((hp>=0&&dc>=0&&mod(dc-hp)===2)||(hc>=0&&dp>=0&&mod(dp-hc)===2)) return '2.5';
+  return '';
+}
+function voiceDistance(before,after) {
+  if(!before.length||!after.length) return null;
+  const short=before.length<=after.length?before:after;
+  const long=short===before?after:before;
+  let prev=Array(long.length+1).fill(0);
+  for(const note of short) {
+    const row=Array(long.length+1).fill(Infinity);
+    for(let j=1;j<=long.length;j++) row[j]=Math.min(row[j-1],prev[j-1]+Math.abs(long[j-1]-note));
+    prev=row;
+  }
+  return {distance:prev.at(-1), entered:Math.max(0,after.length-before.length), left:Math.max(0,before.length-after.length)};
+}
+function fifthPent(gong) {
+  return [0,2,4,7,9].map((semitone,i)=>parseNote(spell(gong.midi+semitone,mod(gong.letter+[0,1,2,4,5][i],7))));
+}
+const recipes = {
+  pedal:'让选定阶名在低音持续。上方轮换五声内的连续五度音，再回到中心。',
+  landing:'先以宫为落点，再用同一套五个音收向选定阶名。选宫时示范改落羽。',
+  rotate:'向上五度旋宫。在两宫共有的四个音中取过渡音组，引入新宫的特征音。',
+  pipa:'采用纯四度、大二度、纯四度的琵琶式排列；在五声内选择可用的两组。'
+};
+const groupNames = {
+  classical:'巴洛克与古典', romantic:'浪漫派与半音和声', impression:'印象派与调式色彩',
+  modern:'非三度与近现代', jazz:'爵士', blues:'蓝调与灵魂乐', pop:'流行、摇滚与影视',
+  pent:'中式五声', modal:'教会调式与持续音'
+};
+const shapes = {
+  q:[0,5,10,15], q5:[0,7,14,21], '424':[0,5,7,12],
+  wt:[0,2,4,6,8,10], oct:[0,2,3,5,6,8,9,11], octa:[0,1,3,4,6,7,9,10],
+  mystic:[0,6,10,16,21,26], cluster:[0,1,2,3], fan:[0,7,13,20],
+  layer:[0,4,7,11,15,18,21], dyad:[0,7], shell:[0,7,12], veil:[0,2,7,9],
+  p014:[0,1,4], p016:[0,1,6], p0258:[0,2,5,8], p0369:[0,3,6,9],
+};
+const shapeDegrees = {
+  q:[0,3,6,9],q5:[0,4,8,12],'424':[0,3,4,7], wt:[0,1,2,3,4,5],
+  oct:[0,1,2,3,4,5,5,6],octa:[0,1,2,2,3,4,5,6],
+  mystic:[0,3,6,9,12,15],cluster:[0,1,1,2],fan:[0,4,8,11],
+  layer:[0,2,4,7,9,11,13],dyad:[0,4],shell:[0,4,7],veil:[0,1,4,5],
+  p014:[0,1,2],p016:[0,1,3],p0258:[0,1,3,5],p0369:[0,2,4,6]
+};
+const shapeLabels={
+  q:'四度叠置',q5:'五度叠置','424':'四二四',wt:'全音音集',oct:'全半八音列',octa:'半全八音列',
+  mystic:'神秘和弦型',cluster:'音簇',fan:'宽音簇',layer:'双层叠置',dyad:'空五度',
+  shell:'开放框架',veil:'二五度音组',p014:'〔0 1 4〕',p016:'〔0 1 6〕',
+  p0258:'〔0 2 5 8〕',p0369:'减七等分'
+};
+const majorSemitones=[0,2,4,5,7,9,11];
+function degreeNote(center, degree) {
+  const match=/^([b#]*)([1-7])$/.exec(degree);
+  if(!match)throw Error('无效级数 '+degree);
+  const offset=Number(match[2])-1;
+  const shift=[...match[1]].reduce((sum,x)=>sum+(x==='#'?1:-1),0);
+  return parseNote(spell(center.midi+majorSemitones[offset]+shift,mod(center.letter+offset,7)));
+}
+function noteAt(n,midi) {
+  return parseNote(spell(midi,n.letter));
+}
+function makeBasis(center,spec) {
+  const match=/^([b#]*[1-7]):?([^/]*)(?:\/([b#]*[1-7]))?$/.exec(spec);
+  if(!match)throw Error('未知构型 '+spec);
+  const [,degree,quality,bassDegree]=match;
+  const root=degreeNote(center,degree);
+  const shape=quality.startsWith('~')?quality.slice(1):null;
+  // 6_9 replaces the internal slash in the 6/9 symbol.
+  const chord=quality==='6_9'?'6/9':quality;
+  const bass=bassDegree?degreeNote(center,bassDegree):root;
+  const notes=shape?shapes[shape].map((semi,i)=>parseNote(spell(root.midi+semi,mod(root.letter+shapeDegrees[shape][i],7)))):expandChord(root.name+chord);
+  return {notes,bass,root,spec,fixed:!!shape,label:unicode(root.name)+(shape?' '+shapeLabels[shape]:unicode(chord))+
+    (bassDegree?'/'+unicode(bass.name):'')};
+}
+const arrangerStyles = {
+  classical:{label:'古典功能和声', group:'classical', intro:'主功能出发，经过下属或前属，形成半终止与末句归宿。', ref:'1',
+    blocks:['1 1/3,6m 4,2m/4 5,57','1,1/3 6m,3m 2m/4,4 5,57','1 3m,17 4,2m/4 57'],
+    ends:{close:'1/5 57 1 1',open:'6m 2m/4,4 1/5 5',loop:'1 6m 4,2m/4 57'}},
+  minor:{label:'小调功能和声',group:'classical',intro:'在自然小调、和声小调之间按功能选音，属和弦保留升高的导音。',ref:'1m',
+    blocks:['1m 1m/b3,b3 4m,2m7b5 5,57','1m b6,b3 4m,2m7b5 57','1m b7,b3 b6,4m 57'],
+    ends:{close:'1m/5 57 1m 1m',open:'b6 4m,2m7b5 1m/5 5',loop:'1m b6 4m 57'}},
+  romantic:{label:'浪漫派半音换色',group:'romantic',intro:'用副属、同主调借用和半音中介。内声可半音滑动，终止另行安排。',ref:'1',
+    blocks:['1 3,37 6m 17','4 4m,4m6 1/3 67,2m','2m b2,2m7b5 1/5 57,b27'],
+    ends:{close:'4m6,2m7b5 57 1add9,1 1',open:'b6,4m 2m7b5 1/5 5',loop:'1 3,37 6m,4m 57'}},
+  jazz:{label:'爵士功能与导向声部',group:'jazz',intro:'通过 ii–V、次级属和代理选择目标。配音优先保留三音、七音及可用的旋律音。',ref:'1maj7',
+    blocks:['1maj7,1maj9 6m7,67 2m7,2m9 57,513','3m7,1maj7/3 67,67b9 2m9,2m7 57,b27','1maj9 4maj7,4maj7#11 4m7,b7 37,67'],
+    ends:{close:'2m9 57b9,b27 1maj9,16_9 1maj7',open:'3m7 67b9 2m7 57,513',loop:'1maj7 67 2m7 57,b27'}},
+  blues:{label:'蓝调与属七中心',group:'blues',intro:'I7 与 IV7 可以作为稳定区。用 V7–IV7 回 I7，或保留回转进入下轮。',ref:'17',
+    blocks:['17,19 47,17 17,16 17,19','47,49 47,4dim7 17,19 17,67','47 49 17 17'],
+    ends:{close:'57 47 17 17',open:'57 47 17 57',loop:'57 47 17 57'}},
+  pop:{label:'流行与摇滚循环',group:'pop',intro:'A 句确立循环，下一句换低音、借用和弦或增加挂留，末组按结尾需要选择。',ref:'1',
+    blocks:['1add9,1 5,5sus4 6m7,6m 4add9,4','6m7 4add9,4 1/3,1 5sus4,5','4 1/3 2m7,b7 5sus4,5'],
+    ends:{close:'4add9 5sus4 5 1add9',open:'6m7 4 1/3 5sus4,5',loop:'1add9 5/7,5 6m7 4add9'}},
+  modal:{label:'调式与持续音',group:'modal',intro:'在 Dorian 思路下保留小调中心，用大 IV 与自然六级着色。持续音允许和弦根音变化。',ref:'1m',
+    blocks:['1m7 4/1,4 1m9 2m7/1,b3/1','1m7 b7/1 4/1 1m9','2m7 4/1 5m7/1 1m9'],
+    ends:{close:'b7/1 4/1 1m9 1m',open:'1m7 2m7 4/1 b7/1',loop:'1m9 4/1 b3/1 4/1'}},
+  impression:{label:'印象派平行与音库换色',group:'impression',intro:'保留四度排列平移，再比较全音音库或带持续音的二五度音响。',ref:null,
+    blocks:['1~q 2~q b3~q 4~q','5~wt 6~wt 5~wt b6~wt','1~veil 2~veil 4~q b3~q'],
+    ends:{close:'4~q 2~q 1~veil 1~shell',open:'1~q 2~q 4~q #4~wt',loop:'1~q b3~q 4~q 2~q'}},
+  quartal:{label:'四度、五度与非三度',group:'modern',intro:'保持预设叠置结构，调整根音、音区和共同材料，听同一结构如何得到多种方向。',ref:null,
+    blocks:['1~q 2~q 4~q,b3~q 5~q','1~q5 b7~q5 4~q5,b6~q5 2~q5','b3~424 4~q 5~q5 2~veil'],
+    ends:{close:'b7~q 4~q 2~veil 1~shell',open:'1~q 4~q b7~q b2~q',loop:'1~q 4~q 5~q 2~q'}},
+  set:{label:'后调性音集与轴对称',group:'modern',intro:'比较小音集、三全音轴和对称材料。终点用回到开头的音集、集合变形或保留悬念来标记。',ref:null,
+    blocks:['1~p014 b2~p014 4~p016 #4~p016','1~oct b2~oct b3~p0258 5~p0369','2~mystic b6~mystic 4~p0258 b7~p016'],
+    ends:{close:'b2~p014 #4~p016 5~p014 1~p014',open:'1~cluster 2~fan 5~layer #4~octa',loop:'1~p014 b3~p014 4~p016 5~p014'}},
+  pent:{label:'中式五声配写',group:'pent',intro:'用宫音和中心阶名确定五声音库，再选择持续音、同宫换落点、邻宫旋宫或四二四。',ref:null}
+};
+
+function withOctave(notes,shift) {
+  return notes.map(n=>noteAt(n,n.midi+shift));
+}
+function octaveIn(pc,low) {
+  return low+mod(pc-low);
+}
+function voicingOptions(basis,anchor) {
+  const bass=noteAt(basis.bass,octaveIn(basis.bass.pc,anchor?Math.max(12,Math.min(36,anchor.midi-28)):36));
+  const candidates=[];
+  if(basis.fixed) {
+    for(const shift of [-12,0,12])candidates.push(withOctave(basis.notes,shift));
+  } else {
+    const upper=basis.notes;
+    const limit=anchor?anchor.midi:76;
+    for(const low of [Math.min(52,limit-11),Math.min(55,limit-11),Math.min(60,limit-11),Math.min(64,limit-11)]) {
+      const voices=upper.map(n=>{
+        let midi=octaveIn(n.pc,Math.max(low,bass.midi+1));
+        while(midi>limit&&midi-12>bass.midi)midi-=12;
+        return noteAt(n,midi);
+      });
+      candidates.push([bass,...voices]);
+    }
+  }
+  return candidates.map(notes=>{
+    const original=notes.map(n=>anchor?noteAt(n,n.midi-12*Math.max(0,Math.ceil((n.midi-anchor.midi)/12))):n);
+    if(anchor)original.push(anchor);
+    const voices=[...new Map(original.map(n=>[n.midi,n])).values()].sort((a,b)=>a.midi-b.midi);
+    return makeEvent(basis.label,voices,2,0,'');
+  });
+}
+function scoreTransition(a,b,profile) {
+  if(!a)return 0;
+  const movement=voiceDistance(a.midi,b.midi)?.distance||0;
+  const common=intersection(a.pcs,b.pcs).length;
+  const diff=Math.abs(value(folded(difference(b.avg,a.avg))));
+  const bassMotion=Math.abs(a.midi[0]-b.midi[0]);
+  return profile==='color' ? movement*.10+bassMotion*.065-common*.17-Math.min(5,diff)*.72 :
+    movement*.34+bassMotion*.13-common*.67+diff*.14;
+}
+function findArrangements(cells,anchors,beats,startingEvent) {
+  function search(profile,primary) {
+    let beam=[{score:0,path:[]}];
+    for(let i=0;i<cells.length;i++) {
+      const anchor=anchors[i];
+      const seen=new Set();
+      const options=cells[i].flatMap((basis,rank)=>voicingOptions(basis,anchor).flatMap(event=>{
+        const key=basis.spec+'|'+event.midi.join(',');
+        if(seen.has(key))return [];
+        seen.add(key);
+        const melodyHit=!anchor||basis.notes.some(n=>n.pc===anchor.pc);
+        const range=event.midi.reduce((sum,n)=>sum+Math.max(0,34-n)*.12+Math.max(0,n-79)*.08,0);
+        const register=event.midi.length>1?Math.abs(event.midi[1]-55)*.045:0;
+        const variation=primary?.[i].basis.spec===basis.spec?1:0;
+        return [{basis,event,melodyHit,cost:rank*.48+(melodyHit?0:9)+range+register+variation}];
+      }));
+      for(const option of options) {
+        let best={score:Infinity,path:[]};
+        for(const entry of beam) {
+          const score=entry.score+option.cost+scoreTransition(entry.path.at(-1)?.event??startingEvent,option.event,profile);
+          if(score<best.score)best={score,path:[...entry.path,option]};
+        }
+        option.best=best;
+      }
+      beam=options.map(option=>option.best).sort((a,b)=>a.score-b.score).slice(0,20);
+    }
+    return beam[0].path.map((option,i)=>({...option,beats:beats[i],anchor:anchors[i]}));
+  }
+  const a=search('smooth');
+  const b=search('color',a);
+  const signature=path=>path.map(x=>x.event.notes.map(n=>n.token).join(' ')).join('|');
+  return signature(a)===signature(b)?[a]:[a,b];
+}
+
+function pentCells(gong,mode,recipe,length,ending) {
+  const newGong=degreeNote(gong,'5');
+  return Array.from({length},(_,i)=>{
+    const switchPoint=Math.max(4,Math.floor(length/8)*4);
+    const onNew=recipe==='rotate'&&i>=switchPoint&&!(ending==='loop'&&i===length-1);
+    const pool=fifthPent(onNew?newGong:gong);
+    const center=recipe==='landing'&&i<switchPoint?pool[0]:pool[recipe==='landing'&&!mode?4:mode];
+    const line=[...pool].sort((a,b)=>a.k-b.k);
+    const idx=i%4, start=idx%3, end=i===length-1||idx===3&&ending!=='open';
+    function stack(bass,upper,label) {
+      let last=bass.midi;
+      const all=[bass,...upper.map(n=>{last+=mod(n.pc-last)||12;return noteAt(n,last);})];
+      return {label,spec:label+all.map(n=>n.pc).join('.'),notes:all,bass,root:bass,fixed:true};
+    }
+    if(ending==='loop'&&i===length-1)return [stack(fifthPent(gong)[mode],[fifthPent(gong)[0]],'接回原宫')];
+    if(recipe==='rotate'&&i===switchPoint-1){
+      const shared=line.filter(n=>fifthPent(newGong).some(t=>t.pc===n.pc));
+      return [stack(shared[0],shared.slice(1,3),'两宫共有音'),stack(shared[1],shared.slice(2),'共同音换低音')];
+    }
+    if(recipe==='rotate'&&i===switchPoint) {
+      const add=pool.find(n=>!fifthPent(gong).some(t=>t.pc===n.pc));
+      return [stack(center,[line.find(n=>n.pc!==add.pc&&n.pc!==center.pc),add],'引入 '+unicode(add.name))];
+    }
+    if(end){
+      const target=ending==='open'?pool[(mode+3)%5]:center;
+      const fifth=pool.find(n=>n.pc===mod(target.pc+7))||pool.find(n=>n.pc!==target.pc);
+      return [stack(target,[fifth,target],ending==='open'?'开放落点':'收向 '+unicode(target.name))];
+    }
+    if(recipe==='pipa'){
+      const bases=line.filter(n=>[5,7].every(s=>pool.some(a=>a.pc===mod(n.pc+s))));
+      return bases.slice(start%2).concat(bases.slice(0,start%2)).map(n=>makeBasis(n,'1~424'));
+    }
+    return [start,(start+1)%3].map(offset=>{
+      const upper=line.slice(offset,offset+3);
+      return stack(center,upper.filter(n=>n.pc!==center.pc),recipe==='pedal'?'持续低音 · '+unicode(center.name):'五声骨干 · '+unicode(center.name));
+    });
+  });
+}
+function buildArrangements(options) {
+  const {style, tonic, mode, recipe, length, ending, anchors, pulse, entry}=options;
+  const model=arrangerStyles[style];
+  const center=parseNote(tonic+'3');
+  const count=Math.max(length,anchors.length);
+  const upbeat=(4-count%4)%4;
+  const blocks=Array.from({length:Math.ceil(count/4)},(_,i)=>i===Math.ceil(count/4)-1?model.ends?.[ending]:model.blocks?.[i%model.blocks.length]);
+  const cells=style==='pent'?pentCells(center,mode,recipe,count,ending):
+    blocks.flatMap((block,i)=>block.split(' ').slice(i===0?upbeat:0).map(cell=>cell.split(',').map(spec=>makeBasis(center,spec))));
+  const beats=cells.map((_,i)=>(i+upbeat)%4===3&&ending!=='loop'?pulse*2:pulse);
+  return {paths:findArrangements(cells,anchors,beats,entry),ref:model.ref?makeBasis(center,model.ref).notes.map(n=>n.name).join(' '):''};
+}
+
+const ink='#253e37', quiet='#536c61', line='#d9e4db', pale='#edf4ed';
+const green='#1b7567', amber='#a65326', gold='#91690d';
+const chartHits={};
+let netView={zoom:1,x:0,y:0};
+
+function setupCanvas(id) {
+  const canvas=document.getElementById(id);
+  const width=canvas.clientWidth, height=canvas.clientHeight, pixel=window.devicePixelRatio||1;
+  if(!width||!height) return null;
+  canvas.width=Math.round(width*pixel); canvas.height=Math.round(height*pixel);
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(pixel,0,0,pixel,0,0);
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  return {ctx,width,height};
+}
+function circle(ctx,x,y,r,fill,stroke,width=1) {
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+  if(fill) {ctx.fillStyle=fill; ctx.fill();}
+  if(stroke) {ctx.strokeStyle=stroke; ctx.lineWidth=width; ctx.stroke();}
+}
+function segment(ctx,a,b,stroke,width=1) {
+  ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+  ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke();
+}
+function words(ctx,s,x,y,style=quiet,size=12,bold=false) {
+  ctx.font=(bold?'650 ':'')+size+'px "Microsoft YaHei UI", sans-serif';
+  ctx.fillStyle=style;ctx.fillText(s,x,y);
+}
+function polygon(ctx,points,fill,stroke,dash=[]) {
+  ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);
+  for(const p of points.slice(1))ctx.lineTo(p.x,p.y);
+  if(points.length>2) ctx.closePath();
+  if(fill&&points.length>2){ctx.fillStyle=fill;ctx.fill();}
+  ctx.setLineDash(dash);ctx.lineWidth=2;ctx.strokeStyle=stroke;ctx.stroke();ctx.setLineDash([]);
+}
+function drawClock(event,comp) {
+  const plot=setupCanvas('pc-plot');
+  if(!plot||!event||Math.min(plot.width,plot.height)<80){chartHits['pc-plot']=[];return;}
+  const {ctx,width,height}=plot;
+  const x=width/2,y=height/2,r=Math.min(x,y)-33;
+  const points=Array.from({length:12},(_,i)=>{
+    const angle=i*Math.PI/6-Math.PI/2;
+    return {x:x+r*Math.cos(angle),y:y+r*Math.sin(angle),angle};
+  });
+  circle(ctx,x,y,r,null,line,1.2);
+  circle(ctx,x,y,r*.62,null,pale);
+  for(const p of points)segment(ctx,{x,y},p,'#e7eee5',.75);
+  if(comp?.pcs.length>1) polygon(ctx,comp.pcs.map(i=>points[i]),'#ad6b2820',amber,[5,3]);
+  if(event.pcs.length>1) polygon(ctx,event.pcs.map(i=>points[i]),'#23877424',green);
+  chartHits['pc-plot']=[];
+  points.forEach((p,i)=>{
+    const curr=event.pcs.includes(i), prior=!!comp?.pcs.includes(i);
+    const style=curr&&prior?gold:curr?green:prior?amber:'#b0c4b6';
+    circle(ctx,p.x,p.y,curr||prior?5.8:3.1,style,'#fffefa',1);
+    const name=event.notes.find(n=>n.pc===i)?.name||comp?.notes.find(n=>n.pc===i)?.name;
+    words(ctx,name?unicode(name):pcNames[i],p.x+19*Math.cos(p.angle),p.y+18*Math.sin(p.angle),curr||prior?ink:quiet,12,curr||prior);
+    if(curr||prior)chartHits['pc-plot'].push({...p,r:13,midi:(event.notes.find(n=>n.pc===i)||comp.notes.find(n=>n.pc===i)).midi,label:name});
+  });
+  if(!event.pcs.length&&!comp?.pcs.length) words(ctx,'休止',x,y,quiet,14);
+}
+
+const axes=[[1,0],[0,1],[-1,1]];
+const netKey = (u,v) => u+','+v;
+function netAdjacent(a,b) {
+  const u=b.u-a.u,v=b.v-a.v;
+  return axes.some(([x,y])=>(x===u&&y===v)||(x===-u&&y===-v));
+}
+function triadFaces(keys) {
+  const set=new Set(keys), faces=[];
+  for(const k of keys) {
+    if(set.has(k+1)&&set.has(k+4)) faces.push([k,k+1,k+4]);
+    if(set.has(k+1)&&set.has(k-3)) faces.push([k-3,k,k+1]);
+  }
+  return faces;
+}
+function gridProjection(event,comp) {
+  const keys=unique(event.keys.concat(comp?.keys||[])).sort(asc);
+  const center=keys.length?Math.round((keys[0]+keys.at(-1))/2):0;
+  const extent=Math.max(Math.abs((keys[0]??0)-center),Math.abs((keys.at(-1)??0)-center));
+  const vertical=Math.max(2,Math.ceil((extent-4)/3.5));
+  const grid=new Map(), coords=new Map();
+  for(let v=-vertical;v<=vertical;v++) for(let u=center-5-vertical;u<=center+5+vertical;u++) {
+    const x=u+v/2-center;
+    if(Math.abs(x)>5)continue;
+    const node={u,v,x,y:v*Math.sqrt(3)/2,k:u+4*v};
+    grid.set(netKey(u,v),node);
+    if(!coords.has(node.k))coords.set(node.k,[]);
+    coords.get(node.k).push(node);
+  }
+  const faces=triadFaces(event.keys).concat(triadFaces(comp?.keys||[]));
+  const costs=new Map();
+  for(const k of keys) {
+    const neighbors=keys.filter(y=>[1,3,4].includes(Math.abs(k-y)));
+    costs.set(k,{neighbors,faces:faces.filter(f=>f.includes(k))});
+  }
+  function score(k,node,active) {
+    const {neighbors,faces}=costs.get(k);
+    let score=node.x**2*.64+node.y**2*1.1;
+    for(const other of neighbors) if(active.has(other)&&netAdjacent(node,active.get(other)))score-=5;
+    for(const face of faces) {
+      const others=face.filter(x=>x!==k).map(x=>active.get(x));
+      if(others.every(Boolean)&&netAdjacent(node,others[0])&&netAdjacent(node,others[1])&&netAdjacent(...others))score-=30;
+    }
+    return score;
+  }
+  const active=new Map();
+  for(let pass=0;pass<6;pass++) for(const k of pass%2===0?keys:[...keys].reverse()) {
+    const places=coords.get(k);
+    if(!places) continue;
+    let best=places[0], min=Infinity;
+    for(const place of places) {
+      const cost=score(k,place,active);
+      if(cost<min){min=cost;best=place;}
+    }
+    active.set(k,best);
+  }
+  return {grid,active,vertical};
+}
+function drawNetwork(event,comp) {
+  const plot=setupCanvas('net-plot');
+  if(!plot||!event||Math.min(plot.width,plot.height)<80){chartHits['net-plot']=[];return;}
+  const {ctx,width,height}=plot, {grid,active,vertical}=gridProjection(event,comp);
+  const scale=Math.min((width-30)/10,(height-42)/(vertical*Math.sqrt(3)))*netView.zoom;
+  const origin={x:width/2+netView.x,y:height/2-4+netView.y};
+  const point=n=>({x:origin.x+scale*n.x,y:origin.y-scale*n.y});
+  for(const node of grid.values()){
+    for(const [u,v] of axes) {
+      const other=grid.get(netKey(node.u+u,node.v+v));
+      if(other)segment(ctx,point(node),point(other),line);
+    }
+  }
+  function drawHull(row,col,fill,dash) {
+    if(!row)return;
+    for(const face of triadFaces(row.keys)) {
+      const shape=face.map(k=>active.get(k));
+      if(shape.every(Boolean)&&netAdjacent(shape[0],shape[1])&&netAdjacent(shape[1],shape[2])&&netAdjacent(shape[0],shape[2]))
+        polygon(ctx,shape.map(point),fill,col,dash);
+    }
+    for(let i=0;i<row.keys.length;i++) for(let j=i+1;j<row.keys.length;j++) {
+      const a=active.get(row.keys[i]),b=active.get(row.keys[j]);
+      if(a&&b&&netAdjacent(a,b)) {ctx.setLineDash(dash);segment(ctx,point(a),point(b),col,2);ctx.setLineDash([]);}
+    }
+  }
+  drawHull(comp,amber,'#ca7c3832',[3,3]);
+  drawHull(event,green,'#23877428',[]);
+  const occupied=new Set(active.values());
+  const labelSize=Math.max(8,Math.min(10,scale*.27));
+  for(const node of grid.values()) {
+    if(occupied.has(node))continue;
+    const p=point(node);
+    circle(ctx,p.x,p.y,1.8,'#aabfb3');
+    if(scale>=24)words(ctx,unicode(nameAtFifth(node.k)),p.x,p.y+9,quiet,labelSize);
+  }
+  chartHits['net-plot']=[];
+  const common=intersection(event.pcs,comp?.pcs||[]);
+  for(const [k,node] of active) {
+    const current=event.keys.includes(k), shared=common.includes(mod(7*k));
+    const p=point(node), name=unicode(nameAtFifth(k));
+    circle(ctx,p.x,p.y,shared?6.6:5.6,shared?gold:current?green:amber,'#fffefa',1);
+    words(ctx,name,p.x,p.y+13,ink,Math.max(10,Math.min(13,scale*.34)),true);
+    const row=current?event:comp;
+    chartHits['net-plot'].push({...p,r:11,midi:row.notes.find(n=>n.k===k).midi,label:name});
+  }
+  if(!active.size) words(ctx,'休止',width/2,height/2,ink,14,true);
+}
+
+function drawCurve(events,selected,raw) {
+  const plot=setupCanvas('curve');
+  if(!plot)return;
+  const {ctx,width,height}=plot, pad=35, base=height/2;
+  const spacing=(width-2*pad)/Math.max(events.length,1), heights=[];
+  for(let i=0;i<events.length;i++) {
+    const prev=events[i-1],curr=events[i];
+    const d=prev?.avg&&curr.avg?difference(curr.avg,prev.avg):null;
+    heights.push(raw?d:folded(d));
+  }
+  const magnitude=raw?Math.max(6,Math.ceil(Math.max(...heights.map(d=>Math.abs(value(d)||0)))/2)*2):6;
+  const factor=(base-27)/magnitude;
+  ctx.setLineDash([3,4]);
+  segment(ctx,{x:pad,y:base-magnitude*factor},{x:width-9,y:base-magnitude*factor},line);
+  segment(ctx,{x:pad,y:base+magnitude*factor},{x:width-9,y:base+magnitude*factor},line);
+  ctx.setLineDash([]);
+  segment(ctx,{x:pad,y:base},{x:width-9,y:base},'#8fae9f');
+  for(const [scale,label] of [[-magnitude,'−'+magnitude],[0,'0'],[magnitude,'+'+magnitude]])
+    words(ctx,label,17,base-scale*factor,quiet,11);
+  heights.forEach((val,i)=>{
+    const x=pad+(i+.5)*spacing;
+    const y=base-(value(val)||0)*factor, top=Math.min(y,base), bottom=Math.max(y,base);
+    if(i===selected) {ctx.fillStyle='#e4f0e6';ctx.fillRect(x-spacing/2,11,spacing,height-24);}
+    if(val) {
+      ctx.fillStyle=val.n<0?'#bc7644':green;
+      if(val.n) ctx.fillRect(x-Math.min(15,spacing*.22),top,Math.min(30,spacing*.44),bottom-top);
+      else circle(ctx,x,base,3,green);
+      words(ctx,fstr(val,true),x,y+(val.n<0?12:-12),ink,spacing<55?10:12,i===selected);
+    }
+    if(!val) words(ctx,'–',x,base-12,quiet,11);
+    words(ctx,String(i+1).padStart(2,'0'),x,height-10,quiet,10,i===selected);
+  });
+  chartHits.curve={pad,spacing,count:events.length};
+}
+
+// Each pipe starts a phrase. Each token is a degree and a quality or a pitch collection.
+const library = [
+  ['classical','C','两句古典乐段 · 半终止与归主','先在属和弦停住，再走前属—属—主。末句的主和弦可与开头比较。',
+    '1 1/3 4 2m/4 1/5 5 | 1 6m 2m/4 1/5 57 1*6'],
+  ['classical','G','巴洛克式五度序进','中段的根音沿五度链下行，最后收束到主调。',
+    '1 57 1 1/3 | 4 7dim 3m 6m 2m 57 1 | 6m 2m/4 1/5 57 1'],
+  ['classical','F','三拍长句 · 低音换位','先听第一转位建立的低音线，再比较两处终止的低音与和弦功能。',
+    '1 1/3 4 2m/4 | 1/5 5 1 6m | 4 2m 1/5 57 1',3],
+  ['classical','D','小调 · 自然七级与升高七级','开头出现自然七级，属和弦引入升高七级，再送回小主和弦。',
+    '1m b7 b3 b6 | 4m 2m7b5 1m/5 5 | 1m 4m/b6 57 1m',2,'1m'],
+  ['classical','E','离开主调后再回来','用 V/V 指向属区，再以主调中的和弦回到开头；注意局部主音建立的时值。',
+    '1 1/3 4 67 | 2m 2:7 5 5*4 | 4 2m/4 1/5 57 1*6'],
+  ['classical','Bb','终止回避与再收句','第一句 V7 接 vi，第二句再经过前属、终止四六与属七回主。',
+    '1 6m 4 2m/4 57 6m | 4 1/3 2m/4 1/5 57 1*6'],
+  ['classical','C','主部、属区与归主 · 二十四音组','开头两句由半终止到属区。中段借副属延伸，末段重新确立主音。',
+    '1 1/3 4 5 | 1 2:7 5 5 | 5 3:7 6m 2:7 | 5 6m 2m 57 | 1/3 4 4m 1/3 | 2m/4 1/5 57 1*6'],
+
+  ['romantic','C','半音中介与三角网翻边','先对照 C、Am、A、F♯m，再经小下属等材料收回中心。把每一步放到三角网看。',
+    '1 6m 6 #4m | 2 2m b6 4m | 1/3 2m7b5 57 1'],
+  ['romantic','A','借用和弦 · 两次小下属','同主小调的 iv、♭VI 与大调终止相接。第二句增加半音低音与扩展。',
+    '1 1/3 4 4m | 1 3:7 6m b6 | 4m6 1/3 2m7b5 57b9 1'],
+  ['romantic','D','增三和弦作为线条的一站','固定共同音再改变一个声部，听增三如何通向新的和弦。',
+    '1 1aug 6m 4m6 | 3m 3:7 6m 67 | 2m 2:7 5 57#5 1add9'],
+  ['romantic','E','对跖跳接与降号区域','参照德沃夏克《自新大陆》慢乐章导奏的远关系思路，自拟延伸与归宿。',
+    '1 b5/b7 1 bb7 | bb5 b6 b3 4m | 1/3 2m7b5 57 1'],
+  ['romantic','A','半音悬念 · 特里斯坦音响的练习','开头模拟特里斯坦音响与属类到达的音集；后续是自拟展开。',
+    '[F3_B3_D#4_G#4] [E3_B3_D4_G#4] 1m 4m6 | 2m7b5 b2 1m/5 57b9 | b6 4m6 57 1m*6',2,'1m'],
+  ['romantic','Eb','那不勒斯与减七换色','第一句先到降二级，第二句用减七引出短暂的新目标，再收回。',
+    '1m 4m b2/4 57 | b6 #4dim7 57 57b9 | 1m 2m7b5 57 1m',2,'1m'],
+
+  ['impression','C','四度平行与音库换色','先听同一四度排列平移，再听全音材料和开放音响如何形成对比。',
+    '1~q 2~q b3~q 4~q | 5~wt 6~wt b6~wt 5~wt | 4~q 2~q 1~veil 1~shell'],
+  ['impression','C','全音与黑键五声 · 向《帆》学习','借用全音与黑键五声的段落对照，自拟配音；它可用来分辨音库与具体和声。',
+    '1~wt 2~wt 5~wt 6~wt | [Gb3_Ab3_Bb3_Db4_Eb4] #4~veil b2~veil #4~veil | 1~wt 2~wt 1~wt 1~shell'],
+  ['impression','F','利底亚光谱 · 持续低音','在 F 低音上保留 B 的调式色彩，比较九音、升十一音和空五度。',
+    '1maj9#11 2/1 5maj7/1 1maj7#11 | 3m7/1 2add9/1 7m7/1 1maj9#11 | 6m7/1 2/1 1add9 1~shell'],
+  ['impression','G','五度低音与上层三和弦','低音 G 上的上层结构依次移动；中段停留在共同音较少的色彩区域。',
+    '1~shell 4/1 2/1 b3/1 | b6/1 b7/1 5m/1 4m/1 | 2m7/1 4/1 1add9 1~shell'],
+  ['impression','Db','平行七和弦 · 回到雾面','保持同类七和弦平移，然后减少音数，看色差与密度怎样各自变化。',
+    '1maj7 2maj7 b3maj7 4maj7 | b6maj7 5maj7 b5maj7 4maj7 | b3maj7 b2maj7 1add9 1~dyad'],
+
+  ['modern','C','五度叠置到四度叠置','同根展开后逐段换用四度、五度和空框架，观察声部跨度变化。',
+    '1~q5 2~q5 4~q5 b7~q5 | 1~q b3~q 4~q 5~q | b7~424 4~q 2~veil 1~shell'],
+  ['modern','C','斯克里雅宾式神秘和弦展开','六音构型移调，自拟插部。C 型移向三全音位置时仍有共同音。',
+    '1~mystic #4~mystic 2~mystic b6~mystic | b3~mystic 6~mystic 4~q 5~wt | 2~mystic #4~mystic 1~mystic 1~shell'],
+  ['modern','E','斯特拉文斯基式叠层与复击','以《春之祭》著名叠层为材料示范，先分层，再把同一组固定复击并移位。',
+    '1 b1:7 1~layer 1~layer | b2~layer 1~layer 1~layer b2~layer | 4~layer b2~layer 1~layer 1~layer'],
+  ['modern','C','两种八音集合及其子集','在同一集合内听子集，再引入另一种八音集合，最后重现开头。',
+    '1~oct 1~p0369 b3~p0369 1~oct | b2~oct b2~p0369 2~oct 2~p0369 | 1~octa #4~octa 1~p0369 1~oct'],
+  ['modern','C','小音集的移位与音程互补','观察相同音集原型经历移位后的不同拼写，后段增加密度。',
+    '1~p014 b2~p014 2~p014 b3~p014 | 1~p016 #4~p016 1~p0258 b2~p0258 | b3~p0369 4~cluster 5~fan 1~p014'],
+  ['modern','A','密度拱形 · 音簇的扩张与收缩','固定动机音级，先改变密度与实际音区，再减少层数恢复透明度。',
+    '1~dyad 1~veil 1~cluster 2~cluster | b3~fan #4~layer 4~layer b2~fan | b2~cluster 1~cluster 1~veil 1~dyad'],
+  ['modern','C','十二音 · 原列、逆行与移位','自拟音列。每行聚成一个响体；原列和逆行的时间顺序写在输入框中。',
+    ['C4 Db4 E4 D4/F#4 F4 A4 Ab4/Bb4 G4 B4 Eb4',
+     'Eb4 B4 G4 Bb4/Ab4 A4 F4 F#4/D4 E4 Db4 C4',
+     'D4 Eb4 F#4 E4/Ab4 G4 B4 Bb4/C5 A4 Db5 F4',
+     'F4 Db5 A4 C5/Bb4 B4 G4 Ab4/E4 F#4 Eb4 D4']],
+  ['modern','C','同一音集的配音实验','比较紧密、开放、交叉八度；集合不变的地方可以出现零色差。',
+    ['C3 Db3 D3/C3 Db4 D5/C4 Db4 D3',
+     'D3 Eb3 E3/D3 Eb4 E5/D4 Eb4 E3',
+     'F3 C4 G4/F2 G3 C5/F3 G3 C4',
+     'C3 Db3 D3/C2 Db4 D5/C4 Db4 D4']],
+
+  ['jazz','C','标准曲式练习 · ii–V 在近关系调','主调 ii–V–I，中段短暂指向 IV，再用次级属与 ii–V 收回。',
+    '1maj7 6m7 2m7 57 | 1maj9 1:7 4maj7 4m7 | 3m7 67b9 2m9 513 | 1maj9 67 2m7 57 1maj7',2,'1maj7'],
+  ['jazz','F','三全音代理 · 两个版本','第一句走常规属七，第二句经降二属七回主；另听代理怎样连接低音线。',
+    '1maj7 67 2m7 57 1maj7 | 3m7 b37 2m7 b27 1maj9 | 4maj7 4m7 57 1maj7',2,'1maj7'],
+  ['jazz','Bb','小调 iiø–V–i','减五小七与变化属七组成小调终止。中段换到关系大调，再回来。',
+    '1m9 4m7 2m7b5 57b9 | 1m9 b6maj7 b7:7 b3maj7 | 4m7 2m7b5 57#9 1m6',2,'1m'],
+  ['jazz','G','扩展和弦与挂留的对照','同一功能位置从七和弦扩展到九、十三，听 sus4 落到属七时音响的改变。',
+    '1maj7 2m7 57 1maj7 | 1maj9 2m11 57sus4 513 | 4maj9 4m9 57b9 1:6_9',2,'1maj7'],
+  ['jazz','Bb','爵士蓝调 · 十二小节','开头沿用布鲁斯骨架，后段引入相连的 ii–V 与回转。',
+    '17 47 17 17 | 47 #4dim7 17 67 | 2m7 57 17*2 67*2 2m7*2 57*2',4,'17'],
+  ['jazz','D','调式爵士 · 两个多利亚区域','先在 D 持续，再上移半音，最后回到原低音。重点是音库与配音。',
+    '1m7/1 4/1 1m9/1 2m7/1 | b2m7/b2 b5/b2 b2m9/b2 b3m7/b2 | 1m7/1 4/1 2m7/1 1m9/1',3,'1m'],
+  ['jazz','C','循环桥段 · 次级属串联','桥段用连续属七向新目标推进；最后的 ii–V 再引回开头。',
+    '1maj7 6m7 2m7 57 | 3:7 67 2:7 57 | 1maj7 67 2m7 57 | 1maj9 4maj7 4m7 1maj7',2,'1maj7'],
+  ['jazz','F','AABA 三十二组 · 桥段到降号侧','两次 A 段共享骨架。桥段用降侧的局部 ii–V–I，再以主调 ii–V 接回末段。',
+    '1maj7 6m7 2m7 57 | 1maj9 67 2m9 57 | 1maj7 6m7 2m7 b27 | 1maj9 37 6m7 1:7 | b7m7 b3:7 b6maj7 b6maj7 | 4m7 b7:7 b3maj7 57 | 1maj7 67 2m7 b27 | 1maj9 2m7 513 1:6_9',2,'1maj7'],
+  ['jazz','A','巴萨诺瓦和声练习 · 下行线条','小调内声从升七逐步滑到六。此例保留和声骨架，切分节奏可另外编配。',
+    '1m 1mMaj7 1m7 1m6 | 4m7 b7:7 b3maj7 b6maj7 | 2m7b5 57b9 1m9 1m6 | 4m9 b7:7 2m7b5 57b9 1m6',2,'1m'],
+
+  ['blues','A','标准十二小节蓝调','前四小节守在 I 区域，接着转到 IV，末句走 V–IV–I。',
+    '17 17 17 17 | 47 47 17 17 | 57 47 17 57',4,'17'],
+  ['blues','E','快速换 IV 的十二小节','第二小节提前走 IV，尾声省略回转，以 I7 停住。',
+    '17 47 17 17 | 47 47 17 19 | 57 47 17 17',4,'17'],
+  ['blues','C','小调蓝调 · 十二小节','用 i 与 iv 建立蓝调结构，在末句加入降六级到属和弦的半音色彩。',
+    '1m7 1m7 1m7 1m7 | 4m7 4m7 1m7 1m7 | b67 57b9 1m7 57',4,'1m'],
+  ['blues','F','灵魂乐与福音式经过和弦','让 IV 与 iv 前后出现，用经过减七及低音线把两段接起来。',
+    '1:6_9 3m7 4maj9 #4dim7 | 1/5 67b9 2m9 513 | 4maj7 4m6 1/3 2m7 57 1:6_9',2,'1'],
+  ['blues','D','放克持续低音 · 挂留到属九','对照 D 低音上的属九、属十三和挂留。四组一循环，中段转动低音。',
+    '19 17sus4 113 19 | 49/1 47/1 17#9 19 | 47 57sus4 113 19',2,'17'],
+
+  ['pop','C','主歌、副歌与尾声 · 四和弦变体','主歌从 vi 起，副歌改从 I 起。尾声放慢和声节奏并收主。',
+    '6m7 4add9 1 5 | 6m7 4 1/3 5sus4 | 1add9 5 6m7 4add9 | 4 5sus4 57 1add9*6'],
+  ['pop','G','摇滚 · 混合利底亚与空五度','使用 I、♭VII、IV 的空五度；把三音保留给旋律辨认。',
+    '15 b75 45 15 | 15 b75 b35 45 | 15 45 b75 15 | 45 b75 15 15'],
+  ['pop','A','影视 · 主调与半音中介','中间两句打开远关系区域，返回时保留共同音并强调低音归属。',
+    '1add9 6m7 4maj7 5sus4 | b6maj7 b3add9 b7add9 4m | 1sus2 3 6m7 4add9 | 2m7 5sus4 57 1add9*6'],
+  ['pop','E','小调配器 · 主歌到尾声','对照小调主和弦、关系大调与挂留，尾声用变化属七收束。',
+    '1madd9 b6maj7 b3 b7 | 1m b7/2 b6 5sus4 | 4m7 b6maj7 b3/5 b7 | 2m7b5 57b9 1madd9 1m',4,'1m'],
+  ['pop','D','卡农式下行与再和声','先保存常见的和声骨架，第二遍加入转位、扩展与经过和弦。',
+    '1 5 6m 3m | 4 1 4 5 | 1maj7 5/7 6m7 3m7/5 | 4add9 1/3 2m7 57 1'],
+  ['pop','Eb','三段式 · 逐步增加和弦密度','先用三和弦，再换挂留、九和弦，桥段插入小下属色彩。',
+    '1 6m 4 5 | 1add9 6m7 4maj7 5sus4 | 2m9 3m7 4m6 b7:7 | 1maj9 6m7 4add9 57 1'],
+  ['pop','A','重复与缓变 · 三十二音组','保持四和弦骨架，在八组一段的结构里改变低音、音数和结尾。',
+    '1sus2 5 6m 4 | 1sus2 5/7 6m7 4add9 | 1add9 5 6m7 4maj7 | 1add9 5sus4 6m9 4add9 | 6m7 4maj7 1/3 5 | 6m7 4add9 1/3 5sus4 | 1maj9 5/7 6m9 4maj7 | 1add9 5sus4 57 1*6'],
+
+  ['pent','C','宫调式 · 持续低音与上层交换','C 低音上轮换五声音库里的连续五度材料，再把结句落在宫。',
+    ['C3 G3 D4/C3 D4 A4/C3 E4 A4/C3 G3 C5','C3 G3 D4 A4/C3 A3 E4 G4/C3 E4 A4 D5/C3 D4 G4',
+     'C3 G3 A4 C5/C3 D4 E4 G4/C3 G3 D4 A4/C3 G3 C5']],
+  ['pent','C','同宫 · 宫、徵、羽的落点','整段使用 C、D、E、G、A；三段改变低音和落音。',
+    ['C3 G3 E4/D3 A3 E4/G2 D4 E4/C3 G3 C5','G2 D3 A4/C3 G3 D4/A2 E4 C5/G2 D3 G4',
+     'A2 E3 C4/D3 A3 E4/G2 D3 E4/A2 E3 A4']],
+  ['pent','C','旋宫 · C 宫到 G 宫再回 C','共用 D、E、G、A 过渡。到 G 宫引入 B，返 C 宫时重新给出 C。',
+    ['C3 G3 D4/C3 E4 A4/D3 A3 E4/G2 D4 E4','G2 D3 B3/G2 A3 E4/B2 E4 G4/G2 D3 G4',
+     'D3 A3 E4/G2 D4 A4/C3 E4 G4/C3 G3 C5']],
+  ['pent','C','琵琶式四二四 · 三种低音','结构共享纯四度、大二度、纯四度的音程排列，落点设在商。',
+    ['D3 G3 A3 D4/G3 C4 D4 G4/A3 D4 E4 A4/D3 A3 D4','G3 C4 D4 G4/D3 G3 A3 D4/A3 D4 E4 A4/G3 C4 D4 G4',
+     'A3 D4 E4 A4/G3 C4 D4 G4/D3 G3 A3 D4/D3 A3 D5']],
+  ['pent','F','羽调式 · 旋律骨干与疏密','同一套五声，中心落在 D。中间保持开放低音，在两次落音之间调整音区。',
+    ['D3 A3 D4/F3 C4 A4/G3 D4 C5/D3 A3 F4','C3 G3 D4/D3 G3 A3 F4/F3 G4 C5/D3 A3 D5',
+     'G3 C4 D4/F3 A3 C4/D3 A3 F4/D3 A3 D4']],
+  ['pent','D','五声内的三度与非三度','看五声内可用的 D 大三、Bm 与连续五度如何穿插，以及收句稳定性的区别。',
+    ['D3 F#3 A3/B2 D4 F#4/E3 B3 F#4/D3 A3 D4','A2 E3 B3/D3 F#4 A4/B2 E4 A4/B2 F#3 B4',
+     'E3 A3 B3 E4/F#3 B3 D4/A2 E3 F#4/D3 A3 D5']],
+
+  ['modal','D','多利亚 · 小主和弦与大 IV','大 IV 的三音是区别于同主自然小调的线索，反复的 D 低音确立中心。',
+    '1m7 4/1 1m9 b3/1 | b7/1 2m7/1 4/1 1m7 | 2m7 4 5m7 1m9',2,'1m'],
+  ['modal','E','弗里几亚 · 降二级靠拢','用持续 E、F 上层和弦与终点 E 建立近距离错动。',
+    '1m b2/1 1m b7m/1 | b2 b3 b7m 1m | 4m 1m/5 b2 1m',2,'1m'],
+  ['modal','F','利底亚 · 大二级与大主和弦','F 与 G 的往返建立中心，中段加入 E 小三，保持 B 自然的色彩。',
+    '1maj7 2/1 1maj7#11 5/1 | 2 7m 6m 5 | 2/1 7m/1 1maj9#11 1',2,'1'],
+  ['modal','G','混合利底亚 · 降七级与持续音','G 低音上比较 F、C 与 G，辨别调式降七级和声部走向。',
+    '1add9 b7/1 4/1 15 | 2m7 4add9 b7 1 | 4/1 b7/1 17sus4 1add9',2,'1'],
+  ['modal','A','开放五度 · 固定音与渐变织体','以 A 作参照，自拟持续音、疏密变化及五度框架。',
+    ['A2 E3/A2 E3 B3/A2 D4 E4/A2 E3 A4','A2 B3 E4/A2 G3 D4/A2 E3 B3 F#4/A2 E4 A4',
+     'A2 C4 G4/A2 B3 E4/A2 D4 E4/A2 E3 A4']],
+  ['modal','C','极简与环境织体 · 缓慢替换的二十四组','持续音 C 上先加音再减音。许多相邻音组的色差很小，把速度和时值也纳入比较。',
+    '1~dyad 5/1 4sus2/1 1~veil | 1add9 1add9 6m7/1 2m7/1 | b7/1 b7add9/1 4/1 1~veil | 1maj7 1maj9 1maj7#11 1maj9#11 | 2/1 4sus2/1 1~veil 1add9 | 1~veil 1~dyad 1~shell 1~shell',4,'1']
+];
+
+function presetData() {
+  return library.map(([category,tonic,title,desc,phraseData,pulse=2,ref],i)=>{
+    const center=parseNote(tonic+'3');
+    const phrases=typeof phraseData==='string'?phraseData.split(' | ').map(part=>part.split(' ')):phraseData.map(part=>part.split('/'));
+    const bluesBars=pulse===4&&/蓝调/.test(title);
+    const exact=typeof phraseData!=='string';
+    const text=phrases.map((phrase,j)=>phrase.map((token,k)=>{
+      const [body,explicit]=token.split('*');
+      const beats=explicit?Number(explicit):pulse+(!bluesBars&&k===phrase.length-1&&pulse<4?pulse:0);
+      const letter=String.fromCharCode(65+j);
+      if(exact)return letter+(k+1)+'：'+body+' @ '+beats;
+      if(body.startsWith('['))return letter+(k+1)+'：'+body.slice(1,-1).replaceAll('_',' ')+' @ '+beats;
+      const basis=makeBasis(center,body);
+      const notes=basis.fixed?basis.notes:voicingOptions(basis,null)[1].notes;
+      return letter+(k+1)+' '+basis.label+'：'+notes.map(n=>n.token).join(' ')+' @ '+beats;
+    }).join('\n')).join('\n\n');
+    const useRef=ref??(category==='impression'||category==='modern'||category==='pent'?'':'1');
+    return {id:'library-'+i,group:groupNames[category],category,tonic,title,desc,text,
+      count:phrases.reduce((sum,part)=>sum+part.length,0),phrases:phrases.length,
+      ref:useRef?makeBasis(center,useRef).notes.map(n=>n.name).join(' '):''};
+  });
+}
+const techniqueNames = {
+  extended:'扩展与变化属', layers:'复合叠置与上层结构', symmetry:'对称音集',
+  planing:'平行与叠置结构', set:'音集变换与十二音', chromatic:'半音线条与等音',
+  pedal:'持续音与密度', pentatonic:'复合五声与旋宫'
+};
+const additionalChords = {
+  'maj13#11':[0,4,7,11,14,18,21], '13#11':[0,4,10,14,18,21],
+  '13b9':[0,4,10,13,21], '7b9b13':[0,4,10,13,20], '7#9b13':[0,4,10,15,20],
+  '7b9#11':[0,4,10,13,18], '7#9#11':[0,4,10,15,18], '7alt':[0,4,6,10,13,15,20],
+  '9sus4':[0,5,7,10,14], '13sus4':[0,5,7,10,14,21],
+  mMaj9:[0,3,7,11,14], mMaj13:[0,3,7,11,14,17,21], m9b5:[0,3,6,10,14],
+  m69:[0,3,7,9,14], maj9no5:[0,4,11,14], add9no3:[0,7,14], madd11:[0,3,7,17]
+};
+for(const [symbol,intervals] of Object.entries(additionalChords))chords.set(symbol,intervals);
+
+const extraShapes = {
+  hex:[0,1,4,5,8,9],  mode3:[0,2,3,4,6,7,8,10,11],
+  mode4:[0,1,2,5,6,7,8,11], mode6:[0,2,4,5,6,8,10,11],
+  q5wide:[0,7,14,21,28,35], qwide:[0,5,10,15,20,25],
+  harm:[0,12,19,24,28,31,34,38,42],  lowerHarm:[0,7,14,16,22,26,33],
+  hexSplit:[0,4,13,17,24,28,32,33,37], semitoneFan:[0,11,13,22,24,25,36],
+  majorMinor:[0,7,12,15,16,19], penta:[0,2,4,7,9], pentaUp:[0,7,14,16,21],
+  xPenta:[0,7,14,16,21,25,27,30,32,34], lydStack:[0,7,14,18,21,23,28]
+};
+const extraDegrees = {
+  hex:[0,1,2,3,4,5], mode3:[0,1,2,2,3,4,5,6,6], mode4:[0,1,1,3,4,4,5,6],
+  mode6:[0,1,2,3,3,4,5,6], q5wide:[0,4,8,12,16,20], qwide:[0,3,6,9,12,15],
+  harm:[0,7,11,14,16,18,20,22,24], lowerHarm:[0,4,8,9,13,15,19],
+  hexSplit:[0,2,8,10,14,16,18,19,21], semitoneFan:[0,6,8,13,14,15,21],
+  majorMinor:[0,4,7,9,9,11], penta:[0,1,2,4,5], pentaUp:[0,4,8,9,12],
+  xPenta:[0,4,8,9,12,15,16,17,19,20], lydStack:[0,4,8,10,12,13,16]
+};
+const extraShapeLabels={
+  hex:'六声音集〔014589〕', mode3:'有限移位第三调式', mode4:'有限移位第四调式',mode6:'有限移位第六调式',
+  q5wide:'六层五度',qwide:'六层四度',harm:'泛音列近似',lowerHarm:'抽取泛音',
+  hexSplit:'六声音集分布',semitoneFan:'半音扇形',majorMinor:'大小三度并置',
+  penta:'五声音集',pentaUp:'开放五声',xPenta:'错层双五声',lydStack:'利底亚开放叠置'
+};
+Object.assign(shapes,extraShapes);
+Object.assign(shapeDegrees,extraDegrees);
+Object.assign(shapeLabels,extraShapeLabels);
+
+function advancedVoicing(center,body,palette) {
+  if(body.startsWith('$')){
+    const entry=palette[body.slice(1)];
+    if(!entry)throw Error('缺少音组 '+body);
+    const [label,pitches]=entry;
+    return {label,notes:pitches.split(' ').map(parseNote)};
+  }
+  const layers=body.split(/[&^]/);
+  const lower=makeBasis(center,layers[0]);
+  if(layers.length===1)
+    return {label:lower.label,notes:lower.fixed?lower.notes:voicingOptions(lower,null)[1].notes};
+
+  const upper=makeBasis(center,layers[1]);
+  const isShell=body.includes('^');
+  const bottom=isShell?[lower.notes[0],lower.notes[1],lower.notes.find(n=>mod(n.pc-lower.root.pc)===10)]:
+    (lower.fixed?lower.notes:voicingOptions(lower,null)[0].notes);
+  if(bottom.some(n=>!n))throw Error('上层结构须有属三、七音: '+body);
+  const highest=Math.max(...bottom.map(n=>n.midi));
+  const base=octaveIn(upper.notes[0].pc,Math.max(isShell?62:65,highest+2));
+  const shift=base-upper.notes[0].midi;
+  return {label:lower.label+(isShell?' 壳＋':' ⊕ ')+upper.label,notes:[...bottom,...withOctave(upper.notes,shift)]};
+}
+function buildAdvancedPresets() {
+  return advancedLibrary.map(({id,style,tonic,title,description,tags,pulse=2,ref='',form,palette={}})=>{
+    const center=parseNote(tonic+'3');
+    const sectionNames=form.map(row=>row.split(' > ')[0]);
+    const phrases=form.map(row=>row.split(' > ')[1].trim().split(/\s+/));
+    const text=phrases.map((phrase,j)=>{
+      const letter=String.fromCharCode(65+j);
+      return '// '+letter+' 段 '+sectionNames[j]+'\n'+phrase.map((token,k)=>{
+        const [body,explicit]=token.split('*');
+        const {label,notes}=advancedVoicing(center,body,palette);
+        const beats=explicit?Number(explicit):pulse;
+        return letter+(k+1)+' '+label+'：'+notes.map(n=>n.token).join(' ')+' @ '+beats;
+      }).join('\n');
+    }).join('\n\n');
+    return {id:'advanced-'+id,category:style,group:groupNames[style],tonic,title,desc:description,
+      tags,sectionNames,text,count:phrases.reduce((sum,part)=>sum+part.length,0),phrases:phrases.length,ref};
+  });
+}
+
+function lesson(id,style,tonic,title,tags,description,form,options={}) {
+  return {id,style,tonic,title,tags:tags.split(' '),description,form:form.trim().split('\n').map(line=>line.trim()),...options};
+}
+const advancedLibrary = [
+  lesson('dominant-colors','jazz','C','一条终止线 · 变化属音响对照','extended chromatic',
+    'C 大调的四个句尾共用 ii–V–I，比较 G 属音区的不同变音。三音和七音保持导向，九音、十一音和十三音改变上方颜色。',`
+    介绍自然扩展 > 1maj13#11 6m9 2m11 59 513 1maj9 4maj9#11 1:6_9*4
+    降九与降十三 > 3m9 67b9b13 2m9 57b9 57b9b13 57alt 1maj9 1maj13*4
+    升九与升十一 > 4maj9 4m11 2m9 57#9 57#9#11 57#9b13 1maj9#11 1:6_9*4
+    挂留及代理 > 6m9 2m11 513sus4 513b9 b2:13#11 1maj13 4m69 1:6_9*6`,{ref:'C E G'}),
+  lesson('upper-structures','jazz','C','同一 G 属壳 · 上层三和弦换色','layers extended',
+    '低层 G–B–F 不动。D 大三引入 F♯，与低层 F 形成半音关系；A 大三给出九音、升十一和十三音，E♭ 大三带来降十三和升九。',`
+    D 大三在上方 > 2m11 57^2 57^2m 57^2 1maj9 6m9 57^2 1:6_9*4
+    A 大三与降号方向 > 2m9 57^6 57^b6 57^6 1maj9#11 4maj13 4m9 1maj13*4
+    上层降半音 > 2m9 57^2 57^b2 57^1 57^b6 57^b2 1maj9 67b9*4
+    两条路线对照 > 2m11 57^6 1maj13#11 6m11 2m11 57^b6 1maj9 1:6_9*6`,{ref:'G B F'}),
+  lesson('altered-aaba','jazz','F','长篇 AABA · 变化属、代理与上层结构','extended layers',
+    '两次 A 都从 F 的扩展主和弦出发，第二次更换属区路径。桥段进入降号区，用明确终止带回 F。',`
+    A1 起句 > 1maj9 6m11 2m9 513sus4 513 1maj9 4maj9#11 1:6_9
+    A1 回转 > 3m9 67b9 2m11 57#11 1maj9 67#9b13 2m9 513b9
+    A2 起句 > 1maj13 6m9 2m11 b2:13#11 1maj9#11 1:13sus4 4maj13 4m69
+    A2 离开 > 3m9 67alt 2m9 57^b6 1maj9 37b9b13 6m9 1:13b9
+    B 降侧展开 > b7m11 b3:13sus4 b3:13b9 b6maj13#11 4m9 b7:13#11 b3maj9 4m11
+    B 返回接口 > b7:7b9#11 b3maj9 4m69 b7:13#11 2m9 513sus4 57alt 513b9
+    A3 起句 > 1maj9 6m11 2m9 57^2 1maj13 4maj9#11 4m11 1maj9
+    A3 终句 > 3m9 67b9b13 2m11 513sus4 57#9#11 b2:13#11 1maj13#11 1:6_9*8`,{ref:'F A C E'}),
+  lesson('minor-line','jazz','A','小调线条 · 由大七下滑到六','extended chromatic',
+    'A 小调内声从 G♯ 下到 G 和 F♯。下句把线条移到下属，再通过小调 iiø 与变化属回归。',`
+    A 小调线条 > $amaj $a7 $a6 1m69 4m9 4m11 2m9b5 513b9
+    下属成为局部中心 > $dmaj $d7 $d6 4m69 b7:13 b3maj9 b6maj9#11 513sus4
+    降六级附近 > b6maj13#11 4m11 b3maj9 b7:13#11 2m9b5 57alt 1mMaj9 1m69
+    回归与尾声 > 4m9 b7:13 b3maj13 b6maj9#11 2m9b5 57#9b13 1mMaj9 1m69*7`,{ref:'A C E',palette:{
+      amaj:['Am(maj9) · G♯ 线条','A2 C3 E3 B3 G#4 E5'],a7:['Am9 · G 线条','A2 C3 E3 B3 G4 E5'],
+      a6:['Am6/9 · F♯ 线条','A2 C3 E3 B3 F#4 E5'],dmaj:['Dm(maj9) · C♯ 线条','D2 F3 A3 E4 C#5 A5'],
+      d7:['Dm9 · C 线条','D2 F3 A3 E4 C5 A5'],d6:['Dm6/9 · B 线条','D2 F3 A3 E4 B4 A5']
+    }}),
+  lesson('dominant-cycle','jazz','C','五度链与半音低音 · 两版回转','extended chromatic',
+    '在常规五度回转和三全音替代之间来回切换。用末尾两个版本对照下降半音低音与终止力度。',`
+    五度链 > 1maj9 37alt 67b9 2:13 57b9 1maj13 6m9 2m11
+    局部代理 > 3m9 b3:13#11 2m11 b2:13#11 1maj9 67b9b13 2m9 513sus4
+    加速收束 > 37#9b13 67alt 2:13b9 57#9#11 4maj13 4m9 513 1:6_9
+    半音低音句 > 37b9b13 b3:13#11 2:13b9 b2:13#11 1maj9 2m11 b2:7b9#11 1maj13*6`,{ref:'C E G'}),
+  lesson('sus-release','jazz','D','挂留属 · 留住与释放','extended planing',
+    '把 A 属区的挂留及变化属放进同一框架，同时比较挂留音的释放与和弦整体换根。以 D 为终点。',`
+    常规释放 > 1maj9 2m11 59sus4 59 1maj9 6m9 513sus4 513
+    晚释放 > 1maj13 4maj9#11 513sus4 513sus4 57b9#11 1maj9 2m9 513sus4
+    移位保留挂留 > 4:13sus4 b3:13sus4 b2:13sus4 513sus4 57alt 1maj13#11 4m69 1maj9
+    代理与回主 > 2m11 513sus4 b2:13sus4 b2:13#11 1maj9 4m11 57b9 1:6_9*6`,{ref:'D F# A'}),
+  lesson('fixed-soprano','jazz','C','旋律 G 保持 · 不同低音与扩展','extended pedal layers',
+    '显式配音把 G5 放在最上方。把同音旋律下的主色彩、下属色彩、挂留或属变音逐句对照。',`
+    主区 > $home $a $f $d $g $galt $c6 $home
+    平行降调 > $eb $ab $eb $db $g $galt $c6 $home
+    小调区 > $cm $fm $ab $d $galt $db $cm $c6
+    保持旋律收束 > $home $a $f $fm $g $galt $db $home*7`,{ref:'C E G',palette:{
+      home:['Cmaj13 · G 顶音','C2 E3 B3 D4 A4 G5'],a:['Am11 · G 顶音','A2 C3 E3 B3 D4 G5'],
+      f:['Fmaj9(#11) · G 顶音','F2 A3 E4 B4 G5'],d:['Dm11 · G 顶音','D2 F3 C4 E4 A4 G5'],
+      g:['G13 · G 顶音','G2 B3 F4 A4 E5 G5'],galt:['G7(♭9 ♭13) · G 顶音','G2 B3 F4 Ab4 Eb5 G5'],
+      c6:['C6/9 · G 顶音','C2 E3 A3 D4 G5'],eb:['E♭maj9 · G 顶音','Eb2 Bb3 D4 F4 G5'],
+      ab:['A♭maj13 · G 顶音','Ab2 C3 F3 Bb3 Eb4 G5'],db:['D♭13(♯11) · G 顶音','Db2 F3 Cb4 Eb4 Bb4 G5'],
+      cm:['Cm(maj9) · G 顶音','C2 Eb3 B3 D4 G5'],fm:['Fm9 · G 顶音','F2 Ab3 C4 Eb4 G5']
+    }}),
+  lesson('jazz-blues-choruses','blues','F','爵士蓝调 · 三轮三十六小节','extended layers',
+    '第一轮建立蓝调框架，第二轮加入连接 ii–V，第三轮增添代理、挂留与高度变化的属和弦。每轮十二小节。',`
+    第一轮起句 > 19 49 113 19
+    第一轮中段 > 49 413 19 113
+    第一轮答句 > 513 49 19 513b9
+    第二轮起句 > 113 49 19 1:13b9
+    第二轮中段 > 49 #4dim7 113 67b9
+    第二轮答句 > 2m9 513 19 57#11
+    第三轮起句 > 1:13sus4 413#11 19 17^6
+    第三轮中段 > 49 #4dim7 1:13b9 67alt
+    第三轮答句 > 2m11 b2:13#11 1:13sus4 113`,{pulse:4,ref:'F A C Eb'}),
+  lesson('neo-soul','blues','Eb','新灵魂乐 · 密集九音与滑动内声','extended chromatic pedal',
+    '用 maj9、m11、13sus4 与小大九作连续色彩。第二句保持降 E 低音，尾声通过变音回到同一中心。',`
+    建立母题 > 1maj9 6m11 4maj13#11 513sus4 3m9 67#9b13 2m11 513
+    持续低音 > 1maj9no5 2m11/1 4maj9/1 5:13sus4/1 4m11/1 b7:13#11/1 2m9/1 1maj13
+    滑向小调 > 1mMaj9 4m11 b6maj9#11 57alt 1m69 b3maj13 b7:13 b6maj9#11
+    转回大调 > 4maj9 4m69 3m9 67alt 2m11 513sus4 513b9 1:6_9*6`,{ref:'Eb G Bb'}),
+  lesson('gospel','blues','F','福音式扩展终止 · 借用与回归','extended chromatic',
+    '保持主与下属的答句关系。穿插减七过渡、借用小下属和主和弦的低音变化。',`
+    应答 > 1:6_9 1maj9/3 4maj9 4m69 1maj9/5 67b9 2m11 513sus4
+    加厚 > 1maj13#11 3m9 4maj13 #4dim7 1maj9/5 b6maj9 2m11 513
+    开向新色彩 > b3maj9 b6maj9#11 4m9 b7:13 1maj9/3 4maj13#11 4m69 1:6_9
+    末句 > 3m9 67alt 2m11 513sus4 4m11 1maj9/5 513b9 1:6_9*6`,{ref:'F A C'}),
+  lesson('funk','blues','E','放克持续音 · 挂留、升九与叠层','layers extended pedal',
+    '前半段多以 E 持续，悬挂音与升九产生棱角。后半把同一材料推到 A 和 B，再落回 E。',`
+    E 挂留 > 19 1:13sus4 17#9 19 47/1 49/1 17^2 1:13sus4
+    上层切换 > 17^6 17^b6 1:13sus4 17#9#11 b7:13#11/1 47/1 19 1:13sus4
+    A 与 B 区 > 4:13sus4 47#9 49 413 5:13sus4 57#9b13 513 57^2
+    接回 E > 1:13sus4 17#9 19 47/1 17^2 1:13sus4 17#9#11 113*6`,{ref:'E G# B D'}),
+  lesson('late-romantic-pedal','romantic','C','晚期浪漫主义 · 延迟解决与长属音','extended pedal chromatic',
+    '长属持续音逐步承载额外声部，几次似要回到主调却折向小下属、降六级或减七，最后才卸掉张力。',`
+    出发 > 1add9 1/3 4m6 1aug/5 b6maj7 2m7b5 1/5 57b9
+    属音上方 > 4m/5 b6/5 2m7b5/5 57b9 1m/5 b2/5 57#5 57b9b13
+    回避 > b6 4m6 b2 1m/3 #4dim7 5 57b9 b6
+    卸除张力 > 4m6 1/5 57b9 1 4m/1 1add9 1/3 1*8`,{ref:'C E G'}),
+  lesson('enharmonic-bridge','romantic','C','等音转向 · 增六与属七的双读','chromatic extended',
+    'A♭–C–E♭–F♯ 作为增六趋向 G，写成 A♭–C–E♭–G♭ 时可听作 A♭7 指向 D♭。两组实音相同，拼写改变色差与语境。',`
+    向 G 收束 > 1m 4m 2m7b5 $os $ger $g $g7 1m
+    等音进入 D♭ > $ger $ab7 $db $gb $ebm $ab9 $db9 $db
+    D♭ 内部展开 > $db9 $gb $b7 $ab7 $db $ebm $ab9 $db9
+    返回 C > $db $ab7 $ger $g 4m6 1m/5 57b9 1m*7`,{ref:'C Eb G',palette:{
+      os:['法式增六','Ab2 C4 D4 F#4'],ger:['德式增六','Ab2 C4 Eb4 F#4'],
+      g:['G 大三','G2 B3 D4 G4'],g7:['G7','G2 B3 D4 F4'],
+      ab7:['A♭7 · 重拼','Ab2 C4 Eb4 Gb4'],ab9:['A♭9','Ab2 C4 Gb4 Bb4 Eb5'],
+      db:['D♭ 大三','Db3 Ab3 F4 Db5'],gb:['G♭maj7','Gb2 Db4 F4 Bb4'],
+      ebm:['E♭m9','Eb3 Gb3 Db4 F4 Bb4'],db9:['D♭maj9','Db3 F3 C4 Eb4 Ab4'],
+      b7:['C♭7','Cb3 Eb4 Gb4 Bbb4']
+    }}),
+  lesson('augmented-romantic','romantic','E','增三与减七 · 多入口的半音展开','symmetry chromatic extended',
+    '同一增三材料可以通过不同声部的半音移动进入多个调域；对照减七的对称性与各自的实际解决。',`
+    增三链 > 1 1aug 6m9 3 3aug #5m9 b6maj9 4m6
+    减七支路 > 1/3 #1dim7 2m9 #2dim7 3m9 b5dim7 5 57b9
+    降侧区域 > b6maj9 b3maj9 4m69 4mMaj9 b2maj9 b2aug 2m7b5 57b9b13
+    重组与回归 > 1aug 6m9 3aug 4m6 2m7b5 1/5 57b9 1add9*7`,{ref:'E G# B'}),
+  lesson('suspension-arc','classical','G','线性挂留 · 延长和弦与模进','chromatic extended',
+    '按同一骨架多写出附加的声部停留。明确听到四度或九度悬挂的前一组、悬挂时刻与下一组。',`
+    主调悬挂 > 1 4 1sus4 1 2m/4 5sus4 5 1
+    属区延长 > 1/3 4 2:7 5add9 5 5sus4 5 57
+    下行模进 > 1 5/7 6m 3m/5 4 1/3 2m 57
+    紧缩终止 > 1 4 4m6 1/5 5sus4 57 1add9 1*7`,{ref:'G B D'}),
+
+  lesson('whole-tone-planes','impression','C','两套全音集合 · 平行属色与音库切换','symmetry planing extended',
+    '先在 C 全音集合内更换根，再切到 C♯ 全音集合。后段用这些集合内的变化属壳或增三片段，不逐一作功能解释。',`
+    第一音库 > 1~wt 2~wt 3~wt #4~wt b6~wt b7~wt 3aug 1~wt
+    第二音库 > b2~wt b3~wt 4~wt 5~wt 6~wt 7~wt 5aug b2~wt
+    两套交替 > 1~wt b2~wt 2~wt b3~wt 3~wt 4~wt #4~wt 5~wt
+    减薄收尾 > b6aug b7aug 1~wt 2aug 3aug #4aug 1~veil 1~shell*7`),
+  lesson('planed-lydian','impression','F','利底亚开放叠置 · 复色平移','planing layers extended',
+    '同一开放叠置纯粹平移；回到 F 持续音的段落，比较固定低音时音集的变化。',`
+    开放叠置 > 1~lydStack 2~lydStack 3~lydStack #4~lydStack 5~lydStack 4~lydStack 2~lydStack 1~lydStack
+    固定 F 低音 > 1maj13#11 2maj9/1 3m11/1 5maj9/1 2add9/1 7m9/1 2maj9/1 1maj9#11
+    两种上层 > 1~shell&2 1~shell&3m 1~shell&5 1~shell&7m 1~shell&2 1~shell&1maj9 1~shell&2maj9 1~lydStack
+    渐次减薄 > 2~lydStack 1~lydStack 5maj9/1 2/1 1maj9#11 1maj7#11 1add9 1~shell*6`),
+  lesson('whole-black-white','impression','C','全音、黑键五声与白键五声 · 三块拼接','symmetry pentatonic layers',
+    '并列两套五声和一套全音材料。中段听各层叠置，尾声再将色块分离。',`
+    白键五声 > 1~penta 1~pentaUp 1~shell 1~veil 1~pentaUp 1~penta 1~dyad 1~pentaUp
+    全音区 > 1~wt 2~wt 3~wt #4~wt b6~wt b7~wt 2~wt 1~wt
+    黑键五声 > #4~penta #4~pentaUp #4~veil #4~shell #4~pentaUp #4~penta #4~dyad #4~pentaUp
+    层间重合 > 1~pentaUp&#4~penta 1~wt&#4~veil 1~xPenta 1~penta&#4~penta 1~wt 1~pentaUp 1~xPenta 1~shell*7`),
+  lesson('planing-6','impression','D','六声部平行四度 · 换音区与疏密','planing layers pedal',
+    '比较六层四度与四层四度。中段把上方四度移动放到 D 持续音上，形成不等距的合成音响。',`
+    密集的形状 > 1~qwide 2~qwide b3~qwide 4~qwide 5~qwide b6~qwide 4~qwide 2~qwide
+    移向疏处 > 1~q5wide b7~q5wide b6~q5wide 5~q5wide 4~q5 2~q5 1~q5wide 1~dyad
+    上层运动 > 1~shell&2~q 1~shell&b3~q 1~shell&4~q 1~shell&5~q 1~shell&b6~q 1~shell&b7~q 1~shell&4~q 1~shell&2~q
+    颜色退后 > 1~qwide 2~qwide 4~q 2~q 1~q 1~veil 1~dyad 1~shell*8`),
+  lesson('color-mosaic','impression','Db','色块镶嵌 · 平行大九与借色','extended planing layers',
+    '大九平移与持续音并置，桥段换成大小三度并置和复合三和弦。留意共同音多少与色差不总同步。',`
+    平移 > 1maj9 2maj9 b3maj9 4maj9 5maj9 b6maj9 5maj9 4maj9
+    持续音 > 1maj9#11 2maj9/1 b3maj9/1 4maj13/1 b6maj9/1 5maj9/1 2maj9/1 1maj13#11
+    复色 > 1~majorMinor 1&2 1m&2 1&b3 1~majorMinor b2~majorMinor b6&1m 5&2
+    回到稀薄色 > 4maj13#11 b3maj9 2maj9 1maj13#11 2/1 1add9 1~veil 1~shell*8`),
+
+  lesson('octatonic-three','modern','C','八音集合 · 三个音库与减七轴','symmetry set',
+    '前三段分别用 C、D♭、D 的全半八音集合，段内以减七或三全音移位取子集。第四段比较音库边界。',`
+    第一集合 > 1~oct 1~p0369 b3~p0369 1~oct #4~oct #4~p0369 6~p0369 1~oct
+    第二集合 > b2~oct b2~p0369 3~p0369 b2~oct 5~oct 5~p0369 b7~p0369 b2~oct
+    第三集合 > 2~oct 2~p0369 4~p0369 2~oct b6~oct b6~p0369 7~p0369 2~oct
+    音库切换 > 1~oct b2~oct 2~oct #4~oct 5~oct b6~oct b3~p0369 1~oct*7`),
+  lesson('modes-limited','modern','C','有限移位 · 第三、第四、第六调式','symmetry set layers',
+    '使用三个音库的教学配音，先听同库移位，再比较换库。和弦层叠只是实验，并非某部梅西安作品的还原。',`
+    第三调式 > 1~mode3 3~mode3 b6~mode3 1~mode3 b2~mode3 4~mode3 6~mode3 1~mode3
+    第四调式 > 1~mode4 #4~mode4 b2~mode4 5~mode4 2~mode4 b6~mode4 #4~mode4 1~mode4
+    第六调式 > 1~mode6 #4~mode6 2~mode6 b6~mode6 b2~mode6 5~mode6 #4~mode6 1~mode6
+    三种对照 > 1~mode3 1~mode4 1~mode6 b2~mode3 b2~mode4 b2~mode6 #4~mode4 1~mode3*7`),
+  lesson('hexatonic','modern','C','六声音集 〔014589〕 · 音区与半音极','symmetry set chromatic',
+    '四种互异集合依序出现；后段把同一个六音集合重新分布到数个八度，和前面的音级变化分开听。',`
+    同库移位 > 1~hex 3~hex b6~hex 1~hex 1~hexSplit 3~hexSplit b6~hexSplit 1~hex
+    半音邻区 > b2~hex 4~hex 6~hex b2~hex b2~hexSplit 4~hexSplit 6~hexSplit b2~hex
+    继续移动 > 2~hex b3~hex #4~hex 5~hex b7~hex 7~hex 2~hexSplit b3~hexSplit
+    重新聚合 > 1~hex 1~hexSplit b2~hexSplit b2~hex 2~hexSplit b3~hexSplit 1~hexSplit 1~hex*7`),
+  lesson('bitonal-cross','modern','C','跨层双调性 · 两套和弦轮流换根','layers planing',
+    '低层与上层保持音区分隔。先固定低层、移动上层，再反向实验，最后让两层各自移动。',`
+    低层固定 > 1&2 1&b3 1&b5 1&b6 1&7m 1&4m 1&2 1&1m
+    上层固定 > 2m&2 b3&2 4&2 b5&2 b6m&2 5&2 b7&2 1&2
+    两层移动 > 1m&2 b2&3 2m&b6 b3&6 4m&b2 b5&5 b6&7 5m&2
+    展开后收薄 > 4m9&3 2m11&5 1maj9&b6 2m9&b2 1~shell&2 1~shell&b3 1~shell&1m 1~shell*7`),
+  lesson('mystic-lab','modern','C','神秘和弦的三全音对 · 六声部近邻','symmetry planing layers',
+    '神秘和弦构型每次平移前先听它的三全音伴随位置；尾声让低层变少而上层保持。',`
+    C 与升 F > 1~mystic #4~mystic 1~mystic #4~mystic 1~qwide #4~qwide 1~mystic 1~shell
+    D 与降 A > 2~mystic b6~mystic 2~mystic b6~mystic 2~q b6~q 2~mystic 2~shell
+    降 E 与 A > b3~mystic 6~mystic b3~mystic 6~mystic b3~mystic&6~veil 6~mystic&b3~veil 6~mystic b3~mystic
+    回到 C > 5~mystic b2~mystic 4~mystic 7~mystic #4~mystic 1~mystic 1~q 1~shell*8`),
+  lesson('spectral-arch','modern','C','拟泛音列 · 两个基音与频谱抽取','layers pedal',
+    '以十二平均律近似选定泛音。九个音高覆盖多个八度；第七、第十一分音的实际音准在此被近似处理。',`
+    C 基音 > 1~dyad 1~lowerHarm 1~harm 1~lowerHarm 1~harm 1~shell 1~lowerHarm 1~harm
+    改变基音 > 2~lowerHarm 2~harm b3~lowerHarm b3~harm 4~lowerHarm #4~harm 5~lowerHarm 5~harm
+    层间扰动 > 1~lowerHarm&b2~p014 1~lowerHarm&2~p016 1~lowerHarm&#4~p0258 1~harm 1~lowerHarm&b6~p014 1~harm 1~semitoneFan 1~lowerHarm
+    听觉退场 > 1~harm 5~harm 1~harm 1~lowerHarm 1~veil 1~dyad 1~shell 1~dyad*8`),
+  lesson('wide-clusters','modern','C','半音群的开合 · 宽音簇与叠层','set layers pedal',
+    '同一半音核经历宽音区投影，再与别的音集合并。最后回到很少的音级，比较密度和色差。',`
+    从核向外 > 1~p014 1~cluster 1~semitoneFan 1~fan 1~semitoneFan 1~cluster 1~p016 1~cluster
+    把核平移 > b2~cluster 2~cluster b3~cluster 3~cluster 4~semitoneFan #4~semitoneFan 5~fan b6~fan
+    复合层 > 1~cluster&#4~cluster 2~cluster&b6~cluster b3~cluster&6~cluster 4~cluster&7~cluster 1~cluster&5~fan 1~semitoneFan 1~hex 1~mode4
+    回到半音核 > #4~cluster 4~cluster b3~semitoneFan 2~semitoneFan b2~fan 1~cluster 1~p014 1~dyad*7`),
+  lesson('set-rotation','modern','C','六声部音集 · 轴变换和复合','set symmetry layers',
+    '把三个音级的构型分组移位，叠成六至八音的集合。比较相同原型的移动与合成音集本身的变化。',`
+    轴的两端 > 1~p014&#4~p014 b2~p014&5~p014 2~p014&b6~p014 b3~p014&6~p014 3~p014&b7~p014 4~p014&7~p014 #4~p014&1~p014 1~p014&#4~p014
+    更换上层 > 1~p014&#4~p016 b2~p014&5~p016 2~p014&b6~p016 b3~p014&6~p016 3~p014&b7~p016 4~p014&7~p016 #4~p014&1~p016 1~p014&#4~p016
+    扩展与聚合 > 1~p0258&#4~p016 2~p0258&b6~p016 4~p0258&7~p016 5~p0258&b2~p016 1~p0258&#4~p0258 #4~p0258&1~p0258 1~hex 1~oct
+    分解 > 1~p0258 #4~p0258 1~p014&#4~p014 1~p014 1~p016 #4~p016 1~p014 1~p014*7`),
+  lesson('chromatic-row','modern','C','十二音全集 · 六音互补与错位叠加','set layers symmetry',
+    '示范六音互补与移位后的重拼。前两组是互补六音集合，全集叠置可用音集图和音程向量核对；这里作垂直音响实验。',`
+    两半互补 > $p $q $pq $q $p $t $u $tu
+    不同投影 > $popen $qopen $pq $qopen $popen $u $t $tu
+    子集与交错 > 1~hex #4~hex 1~hexSplit #4~hexSplit 1~hex&#4~hex $p $u $tu
+    减薄收束 > $pq $qopen $popen 1~hexSplit 1~hex 1~p016 #4~p016 $p*7`,{palette:{
+      p:['六音组 P','C3 Db3 E3 F3 Ab3 A3'],q:['六音组 Q','D3 Eb3 Gb3 G3 Bb3 B3'],
+      pq:['P＋Q 十二音','C3 Db3 E3 F3 Ab3 A3 D4 Eb4 Gb4 G4 Bb4 B4'],
+      popen:['P 分布','C2 Db3 E4 F4 Ab4 A5'],qopen:['Q 分布','D2 Eb3 Gb3 G4 Bb4 B5'],
+      t:['P 上移一半音','Db3 D3 F3 Gb3 A3 Bb3'],u:['Q 上移一半音','Eb3 E3 G3 Ab3 B3 C4'],
+      tu:['移位后十二音','Db3 D3 F3 Gb3 A3 Bb3 Eb4 E4 G4 Ab4 B4 C5']
+    }}),
+  lesson('long-suite','modern','C','音响组曲 · 十二段九十六组','layers set symmetry planing pedal',
+    '从开放五度起步，经历对称音集、异质叠层、拟泛音和半音群。回归段只抽取前几段的材料，用持续音联接，而后逐级减薄。',`
+    开放序奏 > 1~dyad 1~veil 1~q5 1~q5wide 2~q5 4~q5 1~q5wide 1~shell
+    四度扩张 > 1~q 2~q 4~q 5~q b6~q b7~q b3~q 1~qwide
+    六音材料 > 1~hex 3~hex 1~hexSplit b2~hexSplit 2~hex b3~hex 2~hexSplit b3~hexSplit
+    八音材料 > 1~oct #4~oct b2~oct 5~oct 2~oct b6~oct 1~p0369 1~oct
+    两层第一次相遇 > 1&2 1m&2 b3&2 b3&4 4m&3 4m&5 b6&2 1~shell&2
+    两层第二次相遇 > 1~q&b2~p014 1~q&2~p016 1~q&#4~p0258 2~q&b6~p016 b3~q&7~p014 b6~q&2~p016 1~q5&b5~p0258 1~q5&1~p014
+    拟泛音 > 1~lowerHarm 1~harm 2~lowerHarm 2~harm b3~harm #4~harm 5~lowerHarm 5~harm
+    半音群膨胀 > 1~cluster b2~cluster 2~semitoneFan 4~semitoneFan 1~cluster&#4~cluster b2~cluster&5~fan 1~mode3 1~mode4
+    退向复色 > 1~mode6 #4~mode6 1~mode4 b2~mode4 1~mode3 1~hexSplit 1~semitoneFan 1~p0258
+    持续音下的回想 > 1~dyad&2~hex 1~dyad&1~hex 1~dyad&b2~oct 1~dyad&1~p0369 1~shell&4~q 1~shell&2~q 1~shell&2~veil 1~shell
+    缩小跨度 > 5~mystic 1~mystic 1~lowerHarm 1~qwide 1~q5 1~q 1~veil 1~dyad
+    尾声 > 1~p014 1~p016 1~p0258 1~hex 1~p014 1~veil 1~shell 1~dyad*10`),
+
+  lesson('cinematic-color','pop','D','影视配写 · 扩展主轴与半音中介','extended layers chromatic',
+    '主、副、桥、回归四个大段分成八句。相隔三度的中心在长时值上站住，交接处用共同音与变音属转向。',`
+    主部的低密度 > 1add9no3 1maj9 6m11 4maj9#11 1maj9/3 2m11 4maj9 513sus4
+    主部展开 > 1maj13 3m9 b3maj9 b6maj13#11 4m11 1maj9/3 2m11 513b9
+    副部初现 > 1maj13#11 5add9 6m9 4maj13 1maj9/3 57^2 1maj9 4maj9#11
+    副部变体 > 1maj9 3maj9 b6maj9#11 4mMaj9 1maj9/3 2m9 b2:13#11 1:6_9
+    桥段 · 下沉 > b6maj13 b3maj9 b7:13sus4 4m11 b6~lydStack b3~pentaUp 5m9 1mMaj9
+    桥段 · 两层 > 1m&2 b6&1 b3&2 4m&1 1~shell&2~q 1~shell&b2~q 1~shell&4 1~lydStack
+    副部再现 > 1maj9 6m11 4maj13 513sus4 1maj9/3 4m69 2m11 513b9
+    卸去密度 > b6maj9 4m11 1maj13#11 1maj9 1add9 1add9no3 1~veil 1~shell*8`,{ref:'D F# A'}),
+  lesson('progressive','pop','E','前卫摇滚 · 开放五度与复合低音','layers planing extended',
+    '骨架是持续音和开放五度，乐句长短由两拍、三拍和四拍交替。后段加上独立的大、小三和弦层。',`
+    不等长起句 > 15*3 b75*2 4add9no3*3 1madd9*4 1~q5 b7~q5 4~q 1~shell
+    扩展持续音 > 1m11 4/1 b6maj9/1 2/1 1mMaj9 b7/1 4m11/1 1madd9
+    两层错开 > 1~dyad&2 1~dyad&b3 1~dyad&b5 1~dyad&4m b6~dyad&1m b7~dyad&2 5~dyad&b2 1m&2
+    重新开阔 > 1m11 4mMaj9 b6~lydStack b7add9 15*3 b75*2 4add9no3*3 1~q5wide*8`,{ref:'E B'}),
+  lesson('indie-color','pop','C','独立流行 · 开放主音与挂留和弦','extended pedal chromatic',
+    '四种色彩骨架在不同段落重新配音。主歌以空三度开端，副歌加大九，桥段使用借用和弦形成半音方向。',`
+    主歌 > 1add9no3 5sus4/1 6m9 4maj9 1add9/3 2m11 4add9 5sus4
+    副歌 > 1maj9 5add9 6m11 4maj9#11 1maj9/3 3m9 4m69 513sus4
+    桥段 > b6maj9 b3maj9 b7add9 4m11 1mMaj9 2m9b5 4m69 513b9
+    回到主层 > 1maj13 5sus4 6m9 4maj13 2m11 513sus4 1maj9 1add9no3*7`,{ref:'C E G'}),
+  lesson('dorian-long','modal','D','多利亚长篇 · 四度、十一音与调式换层','extended planing pedal',
+    'D 调式中心由持续低音建立。后段对照同主自然小调的降六级，再让 B 自然回到上层。',`
+    固定低音 > 1m11 4/1 2m11/1 b3maj9/1 b7add9/1 4maj9/1 1m69 1m11
+    四度上方 > 1~dyad&2~q 1~dyad&1~q 1~dyad&4~q 1~dyad&5~q 1m11 4/1 2m11/1 1m69
+    降六改变 > 1m11 b6maj9/1 4m11/1 b7/1 1m9 4m/1 b6maj13/1 1m11
+    B 自然回归 > 2m11/1 4/1 4maj9/1 b3maj9/1 1m69 5m11/1 4/1 1m11
+    扩展再现 > b7add9/1 2m11/1 4maj9/1 1m69 1~dyad&2~q 1~dyad&4~veil 1mMaj9 1m11
+    收到持续音 > 4maj9/1 2m11/1 1m69 1m11 b3maj9/1 4/1 1m9 1~shell*8`,{ref:'D F A'}),
+  lesson('lyd-mix','modal','F','调式对照 · 利底亚到混合利底亚','extended pedal planing',
+    '同一个 F 持续音下先突出 B，再换入 B♭ 和 E♭。比较同主音下音库和上层结构的改变。',`
+    利底亚核心 > 1maj9#11 2/1 5maj9/1 1~lydStack 2add9/1 7m9/1 2maj9/1 1maj13#11
+    转向降七 > b7/1 4/1 1:13sus4 b7add9/1 1:13 2m11/1 4maj9/1 1:9sus4
+    两色混接 > 1~shell&2 1~shell&b7 1~shell&5 1~shell&4 1maj9#11 1:13#11 1:13sus4 1~veil
+    回到开放框架 > 1~lydStack 2/1 4/1 b7/1 1maj9#11 1~veil 1add9no3 1~shell*8`,{ref:'F C'}),
+  lesson('ambient-process','modal','A','环境织体 · 持续音的六段变化','pedal layers set',
+    '上方材料由空五度逐渐变为双层色块，后段返回初始材料。音区与时值承担大部分段落识别。',`
+    初始骨架 > 1~dyad 1~shell 1~veil 1~pentaUp 1~dyad&5~veil 1~q5 1~veil 1~shell
+    增添邻音 > 1~pentaUp&2~p014 1~pentaUp&b2~p016 1~pentaUp&2~veil 1~xPenta 1~lydStack 1~semitoneFan 1~veil 1~pentaUp
+    色块覆叠 > 1~shell&5~q 1~shell&b6~q 1~shell&7~p0258 1~shell&2~q5 1~shell&b2~cluster 1~shell&4~veil 1~harm 1~xPenta
+    延展混色 > 1~lydStack 1~lowerHarm 1~q5wide 1~qwide 1~q5&b2~veil 1~q&5~veil 1~pentaUp&5~q 1~pentaUp
+    拆散层次 > 1~xPenta 1~pentaUp 1~dyad&2~p016 1~q5 1~dyad&5~veil 1~pentaUp 1~veil 1~dyad
+    最后余响 > 1~shell 1~dyad 1~pentaUp 1~shell 1~veil 1~shell 1~dyad 1~shell*10`,{pulse:4,ref:'A E'}),
+
+  lesson('penta-strata','pent','C','C 宫与升 F 宫 · 错层双五声','pentatonic layers set',
+    '先分别听 C 宫和升 F 宫。进入复合段时保留高低层，构成超出单套五声的音集；最后撤去上层。',`
+    C 宫 > 1~pentaUp 1~penta 1~dyad 1~veil 1~pentaUp 1~shell 1~penta 1~shell
+    升 F 宫 > #4~pentaUp #4~penta #4~dyad #4~veil #4~pentaUp #4~shell #4~penta #4~shell
+    复合 > 1~pentaUp&#4~penta 1~penta&#4~penta 1~shell&#4~pentaUp 1~xPenta #4~pentaUp&1~penta #4~penta&1~pentaUp 1~pentaUp&#4~penta 1~xPenta
+    分层退出 > 1~dyad&#4~veil 1~dyad&#4~shell 1~pentaUp&#4~dyad 1~pentaUp 1~penta 1~veil 1~dyad 1~shell*8`),
+  lesson('penta-pivot','pent','C','三次旋宫 · 顺次引入 B、F♯、C♯','pentatonic layers pedal',
+    '依次经历 C、G、D、A 宫。过渡只用两套音库的共有音，后段再逆向撤去新加入的音。',`
+    C 宫与共有音 > 1~pentaUp 1~penta $cg 1~veil 1~pentaUp 1~shell $cg $cgopen
+    G 宫与共有音 > 5~pentaUp 5~penta $gd 5~veil 5~pentaUp 5~shell $gd $gdopen
+    D 宫与共有音 > 2~pentaUp 2~penta $da 2~veil 2~pentaUp 2~shell $da $daopen
+    A 宫留驻 > 6~pentaUp 6~penta 6~veil 6~shell 6~pentaUp 6~penta $da $daopen
+    反向旋宫 > 2~penta $gd 5~penta $cg 1~pentaUp $cg 1~veil 1~shell
+    留出落点 > 1~pentaUp 1~penta 1~veil $cg 1~penta 1~shell 1~dyad 1~shell*8`,{palette:{
+      cg:['C/G 宫共有','D3 A3 E4 G4'],cgopen:['C/G 宫共有 · 展开','G2 D3 A3 E5'],
+      gd:['G/D 宫共有','E3 B3 D4 A4'],gdopen:['G/D 宫共有 · 展开','D3 A3 E4 B4'],
+      da:['D/A 宫共有','E3 B3 F#4 A4'],daopen:['D/A 宫共有 · 展开','A2 E3 B3 F#5']
+    }}),
+  lesson('penta-pipa','pent','C','四二四变奏 · 开放配音与双层五声','pentatonic planing layers',
+    '前三个常用四二四位置在 C 宫五声材料内。后两句引入 G 宫上层，然后回到原先的商音落点。',`
+    三种位置 > 2~424 5~424 6~424 2~shell 5~424 2~424 6~424 2~shell
+    扩展与借音层 > 2~424&5~veil 5~424&2~pentaUp 6~424&5~veil 2~424&5~penta 5~424&2~veil 6~424&5~pentaUp 2~424&5~pentaUp 2~shell
+    上层变薄 > 2~424&5~dyad 5~424&2~dyad 6~424&5~veil 2~424 6~424 5~424 2~424 2~shell
+    重新落商 > 5~424 6~424 2~424 2~dyad 5~424 2~424 2~dyad 2~shell*8`),
+  lesson('penta-yu','pent','F','羽调式六段 · 共同音与群体应答','pentatonic layers pedal',
+    'F 宫五声中的 D 羽作为重心。高层与低层以同一音库组织，借用相邻宫时只将新音点亮一小段。',`
+    D 羽起句 > $d $f $g $d $a $c $g $d
+    高低应答 > $df $gc $dg $f $a $gc $dg $d
+    同宫换落点 > $f $g $c $f $df $c $g $f
+    邻宫换色 > $dg $a $toC $new $newOpen $toC $c $d
+    返回羽位 > $d $dg $gc $d $df $c $a $d
+    从密到疏 > $gc $dg $df $d $a $g $d $end*9`,{palette:{
+      d:['D 羽','D3 A3 D4 F4'],f:['F 宫','F3 C4 A4 F5'],g:['G 商','G3 D4 C5'],a:['A 角','A2 F3 C4 A4'],
+      c:['C 徵','C3 G3 D4 C5'],df:['D 上叠 F 音组','D2 A2 D3 F4 A4 C5'],
+      gc:['G 与 C 两层','G2 D3 A3 C4 F4 G4'],dg:['持续 D＋高层','D2 A2 G3 C4 F4 A4'],
+      toC:['两宫共同音','D3 A3 G4 C5'],new:['邻宫新音 E','C3 G3 D4 E4 A4'],
+      newOpen:['E 层展开','C2 G3 D4 A4 E5'],end:['羽的空框架','D2 A3 D5']
+    }}),
+  lesson('penta-bridge','pent','D','五声和调式配写的桥段','pentatonic extended layers',
+    '先把 D 宫材料组合成开放音响，再引入原五声外的 C♯、G 与后来的 C 自然，形成可对照的扩展色彩。',`
+    骨架 > 1~penta 1~pentaUp 6m7 1~shell 1~veil 2~424 5~424 1~pentaUp
+    扩展色彩 > 1maj9 1maj13#11 6m11 2m11 5:13sus4 4maj9/1 1maj9#11 1maj9
+    降七层与复合 > b7/1 b7add9/1 1:13sus4 1~shell&b7~penta 1~pentaUp&b7~veil 1~shell&4maj9 1:13#11 1~lydStack
+    回到五声 > 1maj9 1add9 1~pentaUp 5~424 2~424 1~veil 1~pentaUp 1~shell*8`),
+  lesson('giant-voiceleading','jazz','C','长链再和声 · 三个中心与八句收束','extended layers chromatic',
+    '从 C 到 E♭、A♭ 再返回。每个局部中心用扩展和弦建立，过渡处并置属壳上层结构、代理属和大小调对照。',`
+    C 中心 > 1maj9 6m11 2m11 513sus4 513 1maj9 4maj13 1:6_9
+    指向降 E > 1maj13 3m9 6m11 b7:13sus4 b7:7b9b13 b3maj9 4m9 b7:13
+    降 E 中心 > b3maj13 4m11 b7:13b9 b3maj9 b6maj13#11 b3maj9 5m9 1:13sus4
+    指向降 A > b7m11 b3:13sus4 b3:7b9#11 b6maj9 4m11 b7:7alt b3maj9 b3:13
+    降 A 中心 > b6maj13 4m11 b7m11 b3:13b9 b6maj9 2m9b5 57alt 1mMaj9
+    同主小调桥 > 1m11 4mMaj9 b6maj9#11 b7:13sus4 b3maj13 4m69 2m9b5 57#9b13
+    C 增重 > 1maj9 37alt 67b9b13 2m11 57^6 b2:13#11 1maj13 4m9
+    缓慢解开 > 3m9 67alt 2m9 513sus4 57b9#11 1maj13#11 1maj9 1:6_9*8`,{ref:'C E G'})
+];
+
+const presets=presetData().concat(buildAdvancedPresets());
+
+const byId = id => document.getElementById(id);
+const field = id => byId(id).value;
+const storageKey='harmony-colour-lab-general-v1';
+const state={items:[],selected:0,comparison:'previous',ref:null,loaded:'',text:'',reference:'',
+  dirty:false,keyboard:new Map(),rolling:-1};
+const escapeHtml = text => String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const elements={
+  editor:byId('editor-text'), reference:byId('reference'), preset:byId('preset'),
+  status:byId('status')
+};
+const presetById = id => presets.find(p=>p.id===id);
+
+function status(text,bad=false) {
+  elements.status.textContent=text;
+  elements.status.classList.toggle('bad',bad);
+}
+function store() {
+  try{
+    localStorage.setItem(storageKey,JSON.stringify({text:state.text,reference:state.reference,
+      tempo:field('tempo'),loaded:state.loaded}));
+  } catch(_){ /* A local file can still run without localStorage. */ }
+}
+function loadPreset(id) {
+  const p=presetById(id);
+  if(!p) return;
+  stop();
+  state.loaded=p.id;
+  elements.preset.value=p.id;
+  elements.editor.value=p.text;
+  elements.reference.value=p.ref;
+  byId('sequence').scrollLeft=0;
+  byId('curve-scroll').scrollLeft=0;
+  byId('table').scrollTop=0;
+  state.selected=Math.min(1,p.text.split('\n').length-1);
+  state.comparison='previous';
+  analyze(false);
+  updatePresetDescription();
+}
+function updatePresetDescription() {
+  const p=presetById(field('preset'));
+  byId('preset-note').textContent=p?p.count+' 组 · '+p.phrases+' 段 · '+unicode(p.tonic)+' 为中心或移调基准。'+p.desc:'没有符合筛选条件的预设。';
+  const tags=byId('preset-tags');
+  tags.replaceChildren(...(p?.tags||[]).map(key=>{
+    const chip=document.createElement('span');
+    chip.textContent=techniqueNames[key];
+    return chip;
+  }));
+  tags.hidden=!p?.tags?.length;
+}
+function markDirty() {
+  state.dirty=true;
+  status('有修改，点击「分析进行」或按 Ctrl+Enter。');
+}
+function analyze(custom=true, preferred=null) {
+  try {
+    const items=parseProgression(field('editor-text'));
+    const refText=field('reference').trim();
+    const reference=refText?parseProgression(refText):[];
+    if (reference.length>1||reference[0]&&!reference[0].notes.length) throw Error('参照栏留空，或填写一个有音高的音组');
+    stop();
+    if(custom&&field('editor-text')!==state.text) state.loaded='';
+    state.items=items; state.ref=reference[0]||null;
+    state.selected=Math.min(preferred??state.selected,items.length-1);
+    state.text=field('editor-text');
+    state.reference=field('reference');
+    state.dirty=false;
+    if(state.comparison!=='previous'&&Number(state.comparison)>=items.length)state.comparison='previous';
+    render();
+    store();
+    status('已分析 '+items.length+' 个音组。');
+    return true;
+  } catch(error) {
+    status(error.message,true);
+    return false;
+  }
+}
+function itemLabel(i,event) {
+  return String(i+1).padStart(2,'0')+' · '+event.name;
+}
+function labelNotes(row) {
+  return row.notes.map(n=>unicode(n.token)).join(' ')||'休止';
+}
+function selectedPair() {
+  const current=state.items[state.selected];
+  const index=state.comparison==='previous'?state.selected-1:state.comparison==='none'?-1:Number(state.comparison);
+  return {current, previous:state.items[index], index};
+}
+function computeDelta(a,b) {
+  return a?.avg&&b?.avg?difference(b.avg,a.avg):null;
+}
+function selectItem(index, reveal=false) {
+  if(!state.items[index])return;
+  state.selected=index;
+  render();
+  if(reveal){
+    revealTile(index);
+    const viewport=byId('curve-scroll'), bars=chartHits.curve;
+    if(bars) {
+      const x=bars.pad+(index+.5)*bars.spacing;
+      if(x<viewport.scrollLeft+10||x>viewport.scrollLeft+viewport.clientWidth-10)
+        viewport.scrollLeft=Math.max(0,x-viewport.clientWidth/2);
+    }
+  }
+}
+function renderSequence() {
+  const seq=byId('sequence'), scroll=seq.scrollLeft;
+  seq.innerHTML=state.items.map((item,i)=>
+    '<button type="button" class="event'+(i===state.rolling?' audition':'')+'" data-index="'+i+
+    '" aria-pressed="'+(i===state.selected)+'" title="'+escapeHtml(labelNotes(item))+'"><span class="index">'+
+    String(i+1).padStart(2,'0')+' · '+item.beats+' 拍</span><strong>'+escapeHtml(item.name)+
+    '</strong><span class="notes">'+escapeHtml(labelNotes(item))+'</span></button>').join('');
+  seq.scrollLeft=scroll;
+  const compare=byId('compare');
+  compare.innerHTML='<option value="previous">上一组</option><option value="none">无对照</option>'+state.items.map((a,i)=>
+    '<option value="'+i+'">'+escapeHtml(itemLabel(i,a))+'</option>').join('');
+  compare.value=state.comparison;
+  const starts=phraseStarts();
+  const p=presetById(state.loaded);
+  const jump=byId('phrase-jump');
+  jump.hidden=starts.length<2;
+  byId('play-section').hidden=jump.hidden;
+  jump.replaceChildren(new Option('跳至乐句',''),...starts.map(({index,letter},order)=>{
+    const name=p?.sectionNames?.[order];
+    return new Option(letter+' 段 · '+(name||'第 '+(index+1)+' 组'),index);
+  }));
+  const total=state.items.reduce((sum,item)=>sum+item.beats,0);
+  byId('sequence-description').textContent=(p?p.title+' · ':'')+state.items.length+' 个音组 · '+total+' 拍';
+}
+function phraseStarts() {
+  const starts=[];
+  let previous='';
+  state.items.forEach((item,index)=>{
+    const letter=/^([A-Z])\d+(?:\s|$)/.exec(item.name)?.[1]||'';
+    if(letter&&letter!==previous)starts.push({index,letter});
+    previous=letter;
+  });
+  return starts;
+}
+function playSection() {
+  if(state.dirty&&!analyze())return;
+  const starts=phraseStarts();
+  const start=starts.findLast(x=>x.index<=state.selected)?.index??0;
+  const end=starts.find(x=>x.index>state.selected)?.index??state.items.length;
+  const rows=state.items.slice(start,end);
+  return playRows(rows,rows.map((_,i)=>start+i));
+}
+function renderComparison() {
+  const {current,previous}=selectedPair(), delta=computeDelta(previous,current);
+  const shares=intersection(current.pcs,previous?.pcs||[]);
+  const color=folded(delta), rel=state.ref&&current.avg?folded(difference(current.avg,state.ref.avg)):null;
+  const voice=previous?voiceDistance(previous.midi,current.midi):null;
+  const fmt=(v,subtitle,detail)=>'<article class="metric"><h3>'+subtitle+'</h3><strong>'+escapeHtml(v)+'</strong><span>'+
+    escapeHtml(detail)+'</span></article>';
+  byId('metrics').innerHTML=fmt(fstr(color,true),'色差 Δ','直算 '+fstr(delta,true))+
+    fmt(current.avg?String(current.span):'—','纯五跨度',current.avg?'平均 A '+fstr(current.avg):'无音高')+
+    fmt(previous&&current.avg&&previous.avg?shares.length+' 音':'—','共有音级',shares.map(pc=>pcNames[pc]).join(' · ')||'等音合并')+
+    fmt(voice?voice.distance+' 半音':'—','最短声部距离',voice?'进入 '+voice.entered+' · 离开 '+voice.left:'需要两组音');
+  const t=previous?transformations(previous.pcs,current.pcs):[];
+  const list=(label,content)=>'<span>'+label+escapeHtml(content)+'</span>';
+  byId('set-summary').innerHTML=current.avg
+    ?list('原型 ','['+primeForm(current.pcs).join(' ') + ']　向量 ⟨'+intervalVector(current.pcs).join(' ')+ '⟩')+
+      list('音集关系 ',t.length?t.join('、'):previous?.avg?'无 T/I 对应':'请选择对照组')
+    :list('音集 ','休止');
+  const relation=previous?plr(previous.pcs,current.pcs):'';
+  const tonicLine=current.keys.map(k=>unicode(nameAtFifth(k))+' '+(k>0?'+':'')+k).join('　');
+  byId('net-summary').innerHTML=list('',tonicLine||'休止')+list('',relation||(previous?'青、褐两组叠图 · 金色为共有音级':'点击音点试听'));
+  const special=delta?bookCorrection(previous,current):'';
+  const enh=current.keys.length>current.pcs.length?'；出现共键异名，平均按不同拼写分别计':'';
+  byId('formula').innerHTML='<strong>'+escapeHtml(current.name)+'</strong>　A = '+fstr(current.avg)+
+    '　R = '+fstr(rel,true)+(delta?'　Δ = '+fstr(current.avg)+' − ('+fstr(previous.avg)+') = '+fstr(delta,true)+'，折回 '+fstr(color,true):'　相邻差需指定两组有音高的材料')+enh+
+    (special?'<br><span class="special">按华著第 519 页的共有三全音修正，色差幅度为 '+special+'。</span>':'');
+}
+function calculateRows() {
+  return state.items.map((item,i)=>{
+    const previous=state.items[i-1],d=computeDelta(previous,item);
+    return [i+1,item.name,labelNotes(item),item.beats,item.keys.join(' '),item.span??'',fstr(item.avg),
+      fstr(state.ref&&item.avg?folded(difference(item.avg,state.ref.avg)):null,true),
+      fstr(d,true),fstr(folded(d),true),d?intersection(previous.pcs,item.pcs).map(pc=>pcNames[pc]).join(' '):'—'];
+  });
+}
+const headers=['序号','音组','音名','拍数','纯五序数','跨度','平均 A','相对 R','Δ 直算','Δ 折回','共有音级'];
+function renderTable() {
+  byId('table').innerHTML='<table><thead><tr>'+headers.map(h=>'<th scope="col">'+h+'</th>').join('')+
+    '</tr></thead><tbody>'+calculateRows().map((row,i)=>'<tr'+(i===state.selected?' data-current':'')+'><td>'+row[0]+
+    '</td><td><button class="quiet table-pick" type="button" data-index="'+i+'">'+escapeHtml(row[1])+'</button></td>'+
+    row.slice(2).map(x=>'<td>'+escapeHtml(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+}
+function drawAll() {
+  if(!state.items.length)return;
+  const {current,previous}=selectedPair();
+  drawClock(current,previous);
+  drawNetwork(current,previous);
+  byId('curve').style.width=Math.max(byId('curve-scroll').clientWidth,70+55*state.items.length)+'px';
+  drawCurve(state.items,state.selected,byId('raw-view').checked);
+}
+function render() {
+  renderSequence();renderComparison();renderTable();drawAll();
+}
+
+let context, playToken=0, pending=[];
+const voices=new Set();
+async function audioReady() {
+  if(!context) {
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    if(!Ctx) throw Error('当前浏览器无法合成试听。');
+    context=new Ctx();
+  }
+  if(context.state!=='running') await context.resume();
+  return context;
+}
+function synth(midi,start,duration,level=.15,track=true) {
+  if(!context)return;
+  const oscillator=context.createOscillator(), envelope=context.createGain();
+  oscillator.type='triangle'; oscillator.frequency.value=440*2**((midi-69)/12);
+  oscillator.connect(envelope); envelope.connect(context.destination);
+  const end=start+Math.max(.14,duration);
+  envelope.gain.setValueAtTime(.0001,start);
+  envelope.gain.exponentialRampToValueAtTime(level,start+.018);
+  envelope.gain.exponentialRampToValueAtTime(Math.max(.00011,level*.42),start+Math.min(.105,duration*.45));
+  envelope.gain.exponentialRampToValueAtTime(.0001,end+.04);
+  oscillator.start(start); oscillator.stop(end+.055);
+  if(track){voices.add(oscillator);oscillator.onended=()=>voices.delete(oscillator);}
+}
+async function ping(midi) {
+  try {const ctx=await audioReady();synth(midi,ctx.currentTime+.015,.39,.14,false);}
+  catch(error){status(error.message,true);}
+}
+function setPlaying(running) {
+  byId('stop').disabled=!running;
+  byId('play').disabled=running;
+  byId('play-pair').disabled=running;
+  byId('play-section').disabled=running;
+  byId('arr-listen').disabled=running;
+  byId('arr-stop').disabled=!running;
+}
+function stop() {
+  playToken++;
+  for(const timer of pending)clearTimeout(timer);
+  pending=[];
+  for(const osc of voices)try{osc.stop();}catch(_){}
+  voices.clear();
+  byId('sequence').querySelector('.audition')?.classList.remove('audition');
+  state.rolling=-1;
+  setPlaying(false);
+}
+function play(pair) {
+  if(state.dirty&&!analyze())return;
+  const from=byId('from-here').checked?state.selected:0;
+  const ids=pair?[selectedPair().index,state.selected].filter((v,i,a)=>v>=0&&a.indexOf(v)===i)
+    :state.items.map((_,i)=>i).slice(from);
+  return playRows(ids.map(i=>state.items[i]),ids);
+}
+async function playRows(rows,indices) {
+  if(!rows.length)return;
+  stop();
+  const token=playToken;
+  setPlaying(true);
+  try {
+    const ctx=await audioReady();
+    if(token!==playToken)return;
+    const bpm=Math.max(30,Math.min(260,Number(field('tempo'))||84));
+    byId('tempo').value=bpm;
+    let at=ctx.currentTime+.06;
+    function next(step) {
+      if(token!==playToken)return;
+      byId('sequence').querySelector('.audition')?.classList.remove('audition');
+      if(step===rows.length){stop();return;}
+      const index=indices?.[step],row=rows[step],duration=row.beats*60/bpm;
+      if(index!==undefined) {
+        state.rolling=index;
+        byId('sequence').children[index]?.classList.add('audition');
+        revealTile(index);
+      }
+      const start=Math.max(at,ctx.currentTime+.015);
+      row.midi.forEach(m=>synth(m,start,duration*.91,.22/Math.max(1,row.midi.length)**.8));
+      at=start+duration;
+      pending=[setTimeout(()=>next(step+1),Math.max(0,(at-ctx.currentTime)*1000))];
+    }
+    next(0);
+  } catch(error) {stop(); status(error.message,true);}
+}
+
+function renderKeyboard() {
+  const octave=Number(field('octave')),white=[0,2,4,5,7,9,11],black=[[1,1],[3,2],[6,4],[8,5],[10,6]];
+  const button=(pc,cls,left,width)=>{
+    const midi=(octave+1)*12+pc,name=sharpNames[pc]+octave;
+    return '<button type="button" class="key '+cls+'" data-midi="'+midi+'" title="'+unicode(name)+'" aria-label="'+unicode(name)+
+      '" aria-pressed="'+state.keyboard.has(midi)+'" style="left:'+left+'%;width:'+width+'%">'+(cls?'':sharpNames[pc])+'</button>';
+  };
+  byId('keyboard').innerHTML=white.map((pc,i)=>button(pc,'',i*100/7,100/7)).join('')+
+    black.map(([pc,after])=>button(pc,'black',after*100/7-4.4,8.8)).join('');
+  const selected=[...state.keyboard.values()];
+  byId('picked').textContent=selected.length?'已取音 '+selected.map(unicode).join(' '):'点击琴键取音。';
+}
+function writeKeyboard(replace) {
+  if(!state.keyboard.size){status('请先在键盘中选择音。',true);return;}
+  if(state.dirty&&!analyze())return;
+  const notes=[...state.keyboard.entries()].sort(([a],[b])=>a-b).map(([,s])=>s).join(' ');
+  const current=state.items[state.selected];
+  if(replace) {
+    const segments=state.text.split(/([\n|｜；;])/);
+    segments[current.line*2]=current.name+'：'+notes+' @ '+current.beats;
+    elements.editor.value=segments.join('');
+  } else {
+    elements.editor.value=state.text.trimEnd()+'\n新音组：'+notes+' @ 2';
+  }
+  const newIndex=replace?state.selected:state.items.length;
+  if(analyze(true,newIndex))selectItem(newIndex,true);
+}
+function download(filename,content,type) {
+  const url=URL.createObjectURL(new Blob([content],{type}));
+  const link=document.createElement('a');
+  link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),800);
+}
+function csvEscape(value) {
+  let s=String(value);
+  if(/^[=+\-@\t\r]/.test(s)&&!/^[-+]?\d+(?:\/\d+)?$/.test(s))s="'"+s;
+  return '"'+s.replaceAll('"','""')+'"';
+}
+function readFile(event) {
+  const f=event.target.files[0];
+  if(!f)return;
+  f.text().then(contents=>{
+    if(/\.json$/i.test(f.name)) {
+      const data=JSON.parse(contents);
+      if(typeof data.text!=='string')throw Error('此 JSON 没有进行文本。');
+      elements.editor.value=data.text; elements.reference.value=(typeof data.reference==='string'?data.reference:'');
+    } else {elements.editor.value=contents.replace(/^\uFEFF/,'');elements.reference.value='';}
+    state.dirty=true;
+    analyze(true,0);
+  }).catch(error=>status('导入失败：'+error.message,true))
+    .finally(()=>{event.target.value='';});
+}
+
+function connect() {
+  for(const el of [elements.editor,elements.reference])el.addEventListener('input',markDirty);
+  byId('load-preset').onclick=()=>loadPreset(field('preset'));
+  elements.preset.onchange=updatePresetDescription;
+  byId('analyze').onclick=()=>analyze();
+  byId('editor').addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();analyze();}
+  });
+  byId('demo-format').onclick=()=>{
+    byId('format-detail').open=true;byId('guide').scrollIntoView({behavior:'smooth'});
+  };
+  byId('append-current').onclick=()=>{
+    if(state.dirty&&!analyze())return;
+    const newIndex=state.items.length;
+    elements.editor.value=state.text.trimEnd()+'\n'+state.items[state.selected].source;
+    if(analyze(true,newIndex))selectItem(newIndex,true);
+  };
+  for(const id of ['sequence','table']) byId(id).addEventListener('click',e=>{
+    const button=e.target.closest('button[data-index]');
+    if(button){selectItem(Number(button.dataset.index),true);}
+  });
+  byId('compare').onchange=()=>{
+    state.comparison=field('compare');renderComparison();drawAll();
+  };
+  byId('raw-view').onchange=drawAll;
+  byId('play').onclick=()=>play(false);
+  byId('play-pair').onclick=()=>play(true);
+  byId('play-section').onclick=playSection;
+  byId('stop').onclick=stop;
+  byId('tempo').onchange=store;
+  for(const id of ['preset-group','preset-technique','preset-length'])byId(id).onchange=showPresetOptions;
+  byId('preset-query').oninput=showPresetOptions;
+  byId('phrase-jump').onchange=()=>{if(field('phrase-jump')!=='')selectItem(Number(field('phrase-jump')),true);};
+  byId('octave').onchange=renderKeyboard;
+  byId('clear-keys').onclick=()=>{state.keyboard.clear();renderKeyboard();};
+  byId('keyboard').onclick=e=>{
+    const key=e.target.closest('.key');
+    if(!key)return;
+    const midi=Number(key.dataset.midi);
+    if(state.keyboard.has(midi))state.keyboard.delete(midi);
+    else {state.keyboard.set(midi,sharpNames[mod(midi)]+(Math.floor(midi/12)-1));ping(midi);}
+    renderKeyboard();
+    byId('keyboard').querySelector('[data-midi="'+midi+'"]')?.focus({preventScroll:true});
+  };
+  byId('key-add').onclick=()=>writeKeyboard(false);
+  byId('key-replace').onclick=()=>writeKeyboard(true);
+  byId('import').onclick=()=>byId('input-file').click();
+  byId('input-file').onchange=readFile;
+  byId('save-text').onclick=()=>{
+    if(state.dirty&&!analyze())return;
+    download('和声进行.json',JSON.stringify({text:state.text,reference:state.reference},null,2),'application/json;charset=utf-8');
+  };
+  byId('save-csv').onclick=()=>{
+    if(state.dirty&&!analyze())return;
+    download('和声色差数据.csv','\uFEFF'+[headers,...calculateRows()].map(row=>row.map(csvEscape).join(',')).join('\r\n'),'text/csv;charset=utf-8');
+  };
+  byId('fit-net').onclick=()=>{netView={zoom:1,x:0,y:0};drawAll();};
+  function nearby(event,id) {
+    const rect=event.currentTarget.getBoundingClientRect(), x=event.clientX-rect.left,y=event.clientY-rect.top;
+    return (chartHits[id]||[]).find(hit=>Math.hypot(hit.x-x,hit.y-y)<hit.r);
+  }
+  for(const id of ['pc-plot','net-plot']){
+    byId(id).addEventListener('click',event=>{const hit=nearby(event,id);if(hit)ping(hit.midi);});
+    byId(id).addEventListener('mousemove',event=>{
+      event.currentTarget.title=nearby(event,id)?.label||(id==='net-plot'?'Ctrl+滚轮可缩放':'');
+    });
+  }
+  byId('net-plot').addEventListener('wheel',e=>{
+    if(!e.ctrlKey)return;
+    e.preventDefault();
+    netView.zoom=Math.min(2.8,Math.max(.65,netView.zoom*(e.deltaY<0?1.13:.88)));
+    drawAll();
+  },{passive:false});
+  byId('curve').addEventListener('click',e=>{
+    const bars=chartHits.curve;
+    if(!bars)return;
+    const x=e.clientX-e.currentTarget.getBoundingClientRect().left;
+    selectItem(Math.max(0,Math.min(bars.count-1,Math.floor((x-bars.pad)/bars.spacing))),true);
+  });
+  if(window.ResizeObserver) {
+    const observe=new ResizeObserver(drawAll);
+    observe.observe(byId('pc-plot').parentElement);observe.observe(byId('net-plot').parentElement);
+  } else window.addEventListener('resize',drawAll);
+}
+const pentNames={pedal:'持续低音与四五度',landing:'同宫换落点',rotate:'邻宫旋宫',pipa:'琵琶式四二四'};
+let arrangement=null;
+
+function showPresetOptions() {
+  const previous=elements.preset.value;
+  const group=field('preset-group');
+  const technique=field('preset-technique');
+  const min=Number(field('preset-length'));
+  const query=field('preset-query').trim().toLocaleLowerCase().split(/\s+/);
+  const matches=presets.filter(p=>(!group||p.category===group)&&p.count>=min&&
+    (!technique||(technique==='advanced'?p.tags?.length:p.tags?.includes(technique)))&&
+    query.every(q=>[p.title,p.desc,p.group,unicode(p.tonic),...(p.tags||[]).map(t=>techniqueNames[t]),...(p.sectionNames||[])]
+      .join(' ').toLocaleLowerCase().includes(q)));
+  elements.preset.replaceChildren();
+  for(const group of unique(matches.map(p=>p.group))) {
+    const menu=document.createElement('optgroup');
+    menu.label=group;
+    for(const p of matches.filter(item=>item.group===group))menu.append(new Option(p.title,p.id));
+    elements.preset.append(menu);
+  }
+  if(matches.some(p=>p.id===previous))elements.preset.value=previous;
+  byId('load-preset').disabled=!matches.length;
+  byId('preset-count').textContent=matches.length+' / '+presets.length+' 条';
+  updatePresetDescription();
+}
+function renderArranger() {
+  const style=field('arr-style');
+  const isPent=style==='pent';
+  byId('arr-pent').hidden=!isPent;
+  byId('arr-tonic-label').textContent=isPent?'宫音':'中心音';
+  byId('arr-intro').textContent=arrangerStyles[style].intro;
+  if(!isPent)return;
+  const pool=fifthPent(parseNote(field('arr-tonic')+'3'));
+  const center=Number(field('arr-mode'));
+  byId('arr-scale').innerHTML=pool.map((n,i)=>'<span class="chip'+(i===center?' tonic':'')+'">'+modes[i]+' '+unicode(n.name)+'</span>').join('');
+  byId('arr-recipe-note').textContent=recipes[field('arr-recipe')];
+}
+function parseAnchors(text) {
+  const anchors=text.split(/[\s,，、|｜;；]+/).filter(Boolean).map((word,i)=>{
+    if(word==='-'||word==='—')return null;
+    try {
+      const note=parseNote(word);
+      if(note.midi<36||note.midi>96)throw Error('配写旋律采用 C2–C7 音域');
+      return note;
+    } catch(error) {throw Error('旋律第 '+(i+1)+' 个位置：'+error.message);}
+  });
+  if(anchors.length>32)throw Error('一次配写最多接受 32 个旋律位置。');
+  return anchors;
+}
+function resetArrangements() {
+  arrangement=null;
+  byId('arr-variants').hidden=true;
+  byId('arr-status').textContent='';
+  byId('arr-status').classList.remove('bad');
+}
+function generateArrangements() {
+  resetArrangements();
+  const output=byId('arr-status');
+  try {
+    const useEntry=byId('arr-entry').checked;
+    if(useEntry&&state.dirty&&!analyze())throw Error('请先修正输入区的进行，再参考末组。');
+    const entry=useEntry?state.items.findLast(x=>x.avg):null;
+    if(useEntry&&!entry)throw Error('当前进行需要至少一个有音高的音组。');
+    arrangement=buildArrangements({
+      style:field('arr-style'),tonic:field('arr-tonic'),mode:Number(field('arr-mode')),recipe:field('arr-recipe'),
+      length:Number(field('arr-length')),ending:field('arr-ending'),pulse:Number(field('arr-pulse')),
+      anchors:parseAnchors(field('arr-melody')),entry
+    });
+    byId('arr-choice').replaceChildren(...arrangement.paths.map((_,i)=>new Option(i===0?'A · 优先平顺连接':'B · 优先色差对比',i)));
+    output.textContent='生成 '+arrangement.paths.length+' 套方案，每套 '+arrangement.paths[0].length+' 个音组。'+
+      (entry?'起始参考「'+entry.name+'」。':'');
+    byId('arr-variants').hidden=false;
+    renderArrangementChoice();
+  } catch(error) {
+    output.textContent=error.message;
+    output.classList.add('bad');
+  }
+}
+function currentArrangement() {
+  return arrangement?.paths[Number(field('arr-choice'))];
+}
+function arrangementPhases(path) {
+  const offset=(4-path.length%4)%4;
+  return path.map((_,i)=>{
+    const position=i+offset;
+    return String.fromCharCode(65+Math.floor(position/4))+((position%4)+1);
+  });
+}
+function renderArrangementChoice() {
+  const path=currentArrangement();
+  if(!path)return;
+  const anchored=path.filter(x=>x.anchor);
+  const matched=anchored.filter(x=>x.melodyHit).length;
+  const steps=path.slice(1).map((option,i)=>Math.abs(value(folded(computeDelta(path[i].event,option.event)))));
+  const intensity=steps.reduce((sum,n)=>sum+n,0)/Math.max(1,steps.length);
+  byId('arr-analysis').textContent='平均绝对色差 '+intensity.toFixed(2)+'。'+
+    (anchored.length?'保留 '+anchored.length+' 个旋律音，'+matched+' 个同时属于所选基础构型。':'');
+  const phases=arrangementPhases(path);
+  byId('arr-preview').replaceChildren(...path.map(({basis,event,anchor,melodyHit},i)=>{
+    const li=document.createElement('li');
+    const title=document.createElement('button');
+    title.type='button';
+    title.className='quiet';
+    title.textContent=phases[i]+' '+basis.label;
+    title.title='试听这一组';
+    title.onclick=()=>playRows([event],null);
+    const notes=document.createElement('span');
+    notes.textContent=labelNotes(event)+(anchor&&!melodyHit?' · 含外加旋律音':'');
+    li.append(title,notes);
+    return li;
+  }));
+}
+function writeArrangement(append) {
+  const path=currentArrangement();
+  if(!path)return;
+  if(append&&state.dirty&&!analyze())return;
+  const phases=arrangementPhases(path);
+  const text=path.map(({basis,event,beats},i)=>phases[i]+' '+basis.label+'：'+event.notes.map(n=>n.token).join(' ')+' @ '+beats).join('\n');
+  const newIndex=append?state.items.length:0;
+  elements.editor.value=append?state.text.trimEnd()+'\n\n'+text:text;
+  if(!append)elements.reference.value=arrangement.ref;
+  state.comparison='previous';
+  if(analyze(true,newIndex)) {
+    selectItem(newIndex,true);
+    byId('seq-heading').scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+}
+function setupArranger() {
+  const style=byId('arr-style'), tonic=byId('arr-tonic'), recipe=byId('arr-recipe');
+  for(const [key,model] of Object.entries(arrangerStyles))style.append(new Option(model.label,key));
+  for(const key of gongNames)tonic.append(new Option(unicode(key),key));
+  for(const [key,title] of Object.entries(pentNames))recipe.append(new Option(title,key));
+  byId('arranger').addEventListener('input',event=>{
+    if(event.target.id==='arr-choice')return;
+    resetArrangements();
+    renderArranger();
+  });
+  byId('arr-generate').onclick=generateArrangements;
+  byId('arr-choice').onchange=renderArrangementChoice;
+  byId('arr-replace').onclick=()=>writeArrangement(false);
+  byId('arr-append').onclick=()=>writeArrangement(true);
+  byId('arr-listen').onclick=()=>playRows(currentArrangement().map(({event,beats})=>({...event,beats})),null);
+  byId('arr-stop').onclick=stop;
+  renderArranger();
+}
+function revealTile(index) {
+  const seq=byId('sequence'),button=seq.children[index];
+  if(!button)return;
+  const frame=seq.getBoundingClientRect(), tile=button.getBoundingClientRect();
+  if(tile.left<frame.left||tile.right>frame.right)seq.scrollLeft+=tile.left-frame.left-8;
+}
+
+function init() {
+  for(const [key,title] of Object.entries(groupNames))byId('preset-group').append(new Option(title,key));
+  for(const [key,label] of Object.entries(techniqueNames))byId('preset-technique').append(new Option(label,key));
+  showPresetOptions();
+  setupArranger();
+  renderKeyboard();
+  connect();
+  let saved;
+  try {saved=JSON.parse(localStorage.getItem(storageKey)||'null');}catch(_){}
+  if(saved?.text) {
+    state.loaded=saved.loaded||'';
+    if(presetById(saved.loaded)) elements.preset.value=saved.loaded;
+    elements.editor.value=saved.text;
+    elements.reference.value=saved.reference||'';
+    byId('tempo').value=saved.tempo||84;
+    if(!analyze(false,1))loadPreset(presets[0].id);
+    updatePresetDescription();
+  } else loadPreset(presets[0].id);
+}
+init();
+</script>
+</body>
+</html>
+
